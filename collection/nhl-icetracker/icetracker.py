@@ -19,8 +19,8 @@ def getIceTrackerData(gameId):
 		
 		#period originally in format "1st 00:00"
 		time = period[-5:]
-		if period[0] in ('1','2','3'): period = period[0]
-		else: period = '4' #overtime
+		if period[0] in ('1','2','3'): period = int(period[0])
+		else: period = 4 #overtime
 		
 		if len(team) == 0: team = None
 
@@ -43,4 +43,10 @@ sampleGameId = '2015020279'
 data = getIceTrackerData(sampleGameId)
 
 for i in data:
-	print '{} {} {:3} {:10} {:55}'.format(i.period, i.time, '' if i.team == None else i.team, i.event_type, i.event_description)
+	print '{} {} {:3} {:10} {:55}'.format(
+		i.period,
+		i.time,
+		'' if i.team == None else i.team, #display '' if None
+		i.event_type,
+		i.event_description
+	)
