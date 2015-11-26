@@ -1,6 +1,4 @@
 from datetime import date
-import requests
-from gs.parser import parse
 
 GAMETYPE_DESCRIPTION = {
 	'1': 'Pre-Season',
@@ -46,29 +44,3 @@ def get_game_report_url(season, game_type, game_number, report_type):
 	)
 	return url
 	
-# must loop through each season
-season = 2014
-# only break when an invalid game has been found
-for game_type in ('1','2','3'):
-	print 'Beginning search of %s games...' % (GAMETYPE_DESCRIPTION[game_type],)
-	game_number = 0
-	unreported_games = 0
-	while unreported_games < 10:
-		game_number += 1
-		for report_type in REPORT_ABBREVIATION.keys():
-			url = get_game_report_url(season, game_type, game_number, report_type)
-			if report_type == 'GS':
-				print game_number
-				response = requests.get(url)
-				
-				# if page not found, we tried loading a game that wasn't reported
-				# if this has happened 10 times in a row, assume finished and
-				# stop processing this series of games
-				if response.status_code == 404:
-					unreported_games += 1
-					break
-				else:
-					unreported_games = 0
-			
-				html = response.text
-				print parse(html)
