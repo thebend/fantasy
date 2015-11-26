@@ -5,7 +5,7 @@ class IceTrackerRow():
 	def __init__(self):
 		pass
 
-def getIceTrackerData(gameId):
+def get_ice_tracker_data(gameId):
 	url = 'http://www.nhl.com/gamecenter/en/icetracker?id=%s' % gameId
 
 	#parse html
@@ -39,8 +39,8 @@ def getIceTrackerData(gameId):
 	return data
 
 #will still have to load list of games to loop through each of them
-sampleGameId = '2015020279'
-data = getIceTrackerData(sampleGameId)
+sample_game_id = '2015020279'
+data = get_ice_tracker_data(sample_game_id)
 
 for i in data:
 	print '{} {} {:3} {:10} {:55}'.format(
