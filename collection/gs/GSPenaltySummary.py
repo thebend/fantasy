@@ -34,9 +34,11 @@ def get_team_penalties_from_table(table):
 	return penalties
 	
 def set_penalty_summary(soup, gs):
+	# find penalty data
 	penalty_summary_table = soup.find(id='PenaltySummary')
 	data_tr = penalty_summary_table('tr')[1].td.table.tr.td.table.tr
 	
+	# find penalty table for each time
 	away = data_tr.td.table
 	home = data_tr('td', recursive=False)[-1].table
 	

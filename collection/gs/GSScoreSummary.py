@@ -5,14 +5,12 @@ def get_player_list_from_text(txt):
 	return [int(i) for i in txt.split(', ')]
 
 def set_scoring_summary(soup, gs):
-	# td with text "SCORING SUMMARY"
+	# find scoring data
 	title_td = soup.find('td',text='SCORING SUMMARY')
-	# parent tr, parent table, parent td, parent tr
 	title_parent_tr = title_td.parent.parent.parent.parent
-	# next tr, td, table
 	scoring_summary_table = title_parent_tr.find_next_sibling('tr').td.table
-	# all trs except first, which is a label
 	
+	# all trs except first, which is a label
 	for tr in scoring_summary_table('tr')[1:]:
 		(goal_number, period, time, strength, team, scorer, assist1, assist2, away, home) = [td.text.strip() for td in tr('td')]
 		
