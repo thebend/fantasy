@@ -18,7 +18,7 @@ class GameSummary():
 		self.duration = end - start
 	
 	def get_goal_table_string(self):
-		return '\n'.join([str(g) for g in self.goals])
+		return 'P Time  Tm.  G A1 A2 Visitors          Home\n' + '\n'.join([str(g) for g in self.goals])
 	
 	def __repr__(self):
 		format = \
@@ -26,7 +26,6 @@ class GameSummary():
 {start}-{end} ({duration})
 {attendance} people at {venue}
 Goals:
-P Time  Tm.  G A1 A2 Visitors          Home
 {goals}'''
 		return format.format(
 			date=self.start.strftime('%Y-%m-%d'),
