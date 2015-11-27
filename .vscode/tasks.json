@@ -12,10 +12,41 @@
 	"command": "python",
 	"isShellCommand": true,
 	"showOutput": "always",
-	"args": ["${file}"]
-	//"problemMatcher": "$tsc"
+	"args": ["${workspaceRoot}/collection/GSTest.py"]
+	/*"tasks": [
+		{
+			"taskName": "current",
+			"isBuildCommand": true,
+			"args": ["${file}"]
+		},
+		{
+			"taskName": "test",
+			"isTestCommand": true,
+			"args": ["${workspaceRoot}/collection/GSTest.py"]
+		}
+	]*/
 }
-
+/*
+[
+	{
+		"version": "0.1.0",
+		"command": "python",
+		"isShellCommand": true,
+		"showOutput": "always",
+		"taskName": "current",
+		"isBuildCommand": true,
+		"args": ["${file}"]
+	},{
+		"version": "0.1.0",
+		"command": "python",
+		"isShellCommand": true,
+		"showOutput": "always",
+		"taskName": "test",
+		"isTestCommand": true,
+		"args": ["${workspaceRoot}/Test.py"]
+	}
+]
+*/
 // A task runner that calls the Typescript compiler (tsc) and
 // Compiles a HelloWorld.ts program
 /*

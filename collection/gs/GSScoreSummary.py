@@ -14,12 +14,12 @@ def set_scoring_summary(soup, gs):
 	# all trs except first, which is a label
 	
 	for tr in scoring_summary_table('tr')[1:]:
-		(goal_number, period, time, strength, team, scorer, assist1, assist2, visitors, home) = [td.text.strip() for td in tr('td')]
+		(goal_number, period, time, strength, team, scorer, assist1, assist2, away, home) = [td.text.strip() for td in tr('td')]
 		
 		g = GSGoal()
 		g.period = period
 		g.time = time
-		# g.strength can be inferred from home/visitors count
+		# g.strength can be inferred from home/away count
 		g.team = team
 		# like "13 C.ATKINSON(1)"
 		g.scorer = int(scorer.split(' ')[0])
@@ -29,6 +29,6 @@ def set_scoring_summary(soup, gs):
 		except ValueError:
 			# it's normal that sometimes we won't have assists		
 			pass
-		g.visitors = get_player_list_from_text(visitors)
+		g.away = get_player_list_from_text(away)
 		g.home = get_player_list_from_text(home)
 		gs.goals.append(g)

@@ -1,10 +1,5 @@
 from datetime import datetime
-
-# should probably move this to some sort of utility class
-nbsp = unichr(160)
-def clean_nbsp(text):
-	""" return string with non-breaking spaces (unichr(160)) replaced with regular spaces """
-	return text.replace(nbsp, ' ')
+import Util
 
 def get_nhl_datetime(date, time):
 	"""
@@ -47,7 +42,7 @@ def set_game_info(soup, gs):
 	)
 	
 	# venue originally like "Attendance 19,745 at Air Canada Centre"
-	venue = clean_nbsp(venue).split(' ')
+	venue = Util.clean_nbsp(venue).split(' ')
 	
 	# attendance not always available
 	if len(venue[1]) > 0:

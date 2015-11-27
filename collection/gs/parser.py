@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from GameSummary import GameSummary
 import GSGameInfo
 import GSScoreSummary
+import GSPenaltySummary
 
 def parse(html):
 	soup = BeautifulSoup(html, 'html.parser')
@@ -14,6 +15,7 @@ def parse(html):
 		return None
 	
 	GSScoreSummary.set_scoring_summary(soup, gs)
+	GSPenaltySummary.set_penalty_summary(soup, gs)
 	return gs
 		
 	

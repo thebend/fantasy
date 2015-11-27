@@ -13,7 +13,7 @@ class GSGoal():
 			self.scorer,
 			self.assist1,
 			self.assist2 if self.assist2 else '',
-			self.get_team_list(self.visitors),
+			self.get_team_list(self.away),
 			self.get_team_list(self.home)
 		)
 	
