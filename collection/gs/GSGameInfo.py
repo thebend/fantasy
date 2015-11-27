@@ -11,13 +11,7 @@ def get_nhl_datetime(date, time):
 
 def set_game_info(soup, gs):
 	"""
-	Sets the following properties in gs:
-	startDatetime
-	endDatetime
-	duration
-	venue
-	attendance
-	timezone
+	Sets the times, duration, venue, and attendance for a game
 	"""
 	(date, venue, time, gameNumber, final) = [tr.text.strip() for tr in soup.find(id='GameInfo')('tr')[3:8]]
 	
