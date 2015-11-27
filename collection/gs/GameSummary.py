@@ -1,3 +1,5 @@
+import Util
+
 class GameSummary():
 	def __init__(self):
 		self.attendance = None
@@ -14,7 +16,13 @@ class GameSummary():
 	
 	@staticmethod
 	def get_penalty_table_string(penalties):
-		return '\n'.join([str(i) for i in penalties])
+		data = '\n'.join([str(i) for i in penalties])
+		return 'P Time  Pl M Type\n' + data
+		
+	@staticmethod
+	def get_period_table_string(periods):
+		data = '\n'.join([str(i) for i in periods])
+		return ' G  S Pn PM\n' + data
 		
 	def __repr__(self):
 		format = \
@@ -26,7 +34,15 @@ Goals:
 Home Penalties:
 {home_penalties}
 Away Penalties:
-{away_penalties}'''
+{away_penalties}
+Home Periods:
+{home_periods}
+Away Periods:
+{away_periods}
+Referees:
+{referees}
+Linesmen:
+{linesmen}'''
 		return format.format(
 			date=self.start.strftime('%Y-%m-%d'),
 			start=self.start.strftime('%H:%M'),
@@ -36,5 +52,9 @@ Away Penalties:
 			venue=self.venue,
 			goals=self.get_goal_table_string(),
 			home_penalties=self.get_penalty_table_string(self.home_penalties),
-			away_penalties=self.get_penalty_table_string(self.away_penalties)
+			away_penalties=self.get_penalty_table_string(self.away_penalties),
+			home_periods=self.get_period_table_string(self.home_periods),
+			away_periods=self.get_period_table_string(self.away_periods),
+			referees=Util.get_number_list_string(self.referees),
+			linesmen=Util.get_number_list_string(self.linesmen),
 		)

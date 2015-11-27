@@ -1,3 +1,5 @@
+import Util
+
 class GSGoal():
 	def __init__(self):
 		self.assist1 = None
@@ -13,12 +15,7 @@ class GSGoal():
 			self.scorer,
 			self.assist1,
 			self.assist2 if self.assist2 else '',
-			self.get_team_list(self.away),
-			self.get_team_list(self.home)
+			Util.get_number_list_string(self.away),
+			Util.get_number_list_string(self.home)
 		)
-	
-	@staticmethod
-	def get_team_list(team):
-		""" return list of player numbers like '13,20,21,31,55' """
-		return ','.join([str(i) for i in team])
 		

@@ -5,7 +5,7 @@ class Penalty():
 		pass
 		
 	def __repr__(self):
-		return '{:1} {:5} {:2} {:1} {:15}'.format(
+		return '{:1} {:>5} {:2} {:1} {:15}'.format(
 			self.period,
 			self.time,
 			self.player,
@@ -33,9 +33,10 @@ def get_team_penalties_from_table(table):
 		
 	return penalties
 	
-def set_penalty_summary(soup, gs):
+def set_penalty_summary(gs, soup):
 	# find penalty data
-	penalty_summary_table = soup.find(id='PenaltySummary')
+	# penalty_summary_table = soup.find(id='PenaltySummary')
+	penalty_summary_table = soup.td.table
 	data_tr = penalty_summary_table('tr')[1].td.table.tr.td.table.tr
 	
 	# find penalty table for each time
