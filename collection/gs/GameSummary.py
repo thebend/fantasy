@@ -23,6 +23,10 @@ class GameSummary():
 	def get_period_table_string(periods):
 		data = '\n'.join([str(i) for i in periods])
 		return ' G  S Pn PM\n' + data
+	
+	def get_star_table_string(self):
+		data = '\n'.join([str(i) for i in self.stars])
+		return '# Tm  P Pl\n' + data
 		
 	def __repr__(self):
 		format = \
@@ -42,7 +46,9 @@ Away Periods:
 Referees:
 {referees}
 Linesmen:
-{linesmen}'''
+{linesmen}
+Stars:
+{stars}'''
 		return format.format(
 			date=self.start.strftime('%Y-%m-%d'),
 			start=self.start.strftime('%H:%M'),
@@ -57,4 +63,5 @@ Linesmen:
 			away_periods=self.get_period_table_string(self.away_periods),
 			referees=Util.get_number_list_string(self.referees),
 			linesmen=Util.get_number_list_string(self.linesmen),
+			stars=self.get_star_table_string()
 		)

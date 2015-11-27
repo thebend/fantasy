@@ -1,12 +1,30 @@
 import Util
 
-def get_officials_from_table(table):
-	return [Util.clean_nbsp(tr.text).strip() for tr in table('tr')]
+class Star():
+	def __init__(self):
+		pass
 	
-def set_officials(gs, soup):
-	# find cells with referee and linesmen lists
-	(referee_td, linesmen_td) = soup.td.table('tr', recursive=False)[1]('td', recursive=False)
+	def __repr__(self):
+		return '{:1} {:3} {:1} {:>2}'.format(
+			self.rank,
+			self.team,
+			self.position,
+			self.player
+		)
+		
+def set_stars(gs, soup):
+	# find star table
+	star_table = soup.table.tr.td.table
 	
-	gs.referees = get_officials_from_table(referee_td.table)
-	gs.linesmen = get_officials_from_table(linesmen_td.table)
+	stars = []
+	for tr in star_table('tr'):
+		(rank, team, position, player) = [td.text for td in tr('td')]
+		s = Star()
+		s.rank = int(rank[0])
+		s.team = team
+		s.position = s.position = position
+		s.player = Util.get_integer(player)
+		stars.append(s)
+		
+	gs.stars = stars
 	

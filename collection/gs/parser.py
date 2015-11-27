@@ -43,7 +43,7 @@ def parse(html):
 	
 	(officials, stars) = officials_stars.td.table('tr', recursive=False)[1]('td', recursive=False)
 	GSOfficials.set_officials(gs, officials)
-	# GSStars.set_stars(gs, stars)
+	GSStars.set_stars(gs, stars)
 	
 	return gs
 		
