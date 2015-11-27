@@ -12,7 +12,9 @@ $RECYCLE.BIN/
 .DS_Store
 
 # VS Code
-.vscode/settings.json
+# want to sync vscode settings for entire team
+# to make it easier to learn/teach/share
+# .vscode/settings.json
 
 #############
 ## Python
