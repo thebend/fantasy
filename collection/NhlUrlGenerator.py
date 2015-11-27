@@ -27,6 +27,8 @@ def get_game_report_url(season, game_type, game_number, report_type):
 	game_type -- int 1 (Pre-Season), 2 (Regular Season), 3 (Playoffs) 
 	game_number -- int identifying game by number, in sequence for that season and game_type
 	report_type -- two character abbreviation for game type. One of GS|ES|FC|FS|PL|TV|TH|RO|SS
+	
+	returns string like "http://www.nhl.com/scores/htmlreports/20142015/GS010001.HTM"
 	"""
 	
 	if not 1900 <= int(season) <= date.today().year:
