@@ -38,7 +38,7 @@ def get_team_penalties_from_table(table):
 		
 	return penalties
 	
-def set_penalty_summary(gs, soup):
+def set_penalty_summary(self, soup):
 	# find penalty data
 	# penalty_summary_table = soup.find(id='PenaltySummary')
 	penalty_summary_table = soup.td.table
@@ -48,6 +48,6 @@ def set_penalty_summary(gs, soup):
 	away = data_tr.td.table
 	home = data_tr('td', recursive=False)[-1].table
 	
-	gs.home_penalties = get_team_penalties_from_table(home)
-	gs.away_penalties = get_team_penalties_from_table(away)
+	self.home_penalties = get_team_penalties_from_table(home)
+	self.away_penalties = get_team_penalties_from_table(away)
 	

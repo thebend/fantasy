@@ -30,7 +30,7 @@ def get_team_periods_from_table(table):
 		
 	return periods
 	
-def set_period_summary(gs, soup):
+def set_period_summary(self, soup):
 	# find penalty data
 	# penalty_summary_table = soup.find('td', text='BY PERIOD').parent.parent
 	penalty_summary_table = soup.td.table
@@ -40,6 +40,6 @@ def set_period_summary(gs, soup):
 	away_table = penalty_tables_tr.td.table
 	home_table = penalty_tables_tr('td', recursive=False)[-1].table
 	
-	gs.home_periods = get_team_periods_from_table(home_table)
-	gs.away_periods = get_team_periods_from_table(away_table)
+	self.home_periods = get_team_periods_from_table(home_table)
+	self.away_periods = get_team_periods_from_table(away_table)
 	

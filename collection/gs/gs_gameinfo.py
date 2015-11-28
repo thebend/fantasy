@@ -1,5 +1,5 @@
-from datetime import datetime
 from collection import util
+from datetime import datetime
 
 def get_nhl_datetime(date, time):
 	"""
@@ -8,8 +8,8 @@ def get_nhl_datetime(date, time):
 	"""
 	datetime_string = '{} {} PM'.format(date, time)
 	return datetime.strptime(datetime_string, '%A, %B %d, %Y %I:%M %p')
-
-def set_game_info(gs, soup):
+	
+def set_game_info(self, soup):
 	"""
 	Sets the times, duration, venue, and attendance for a game
 	"""
@@ -30,7 +30,7 @@ def set_game_info(gs, soup):
 	# should process timezone and daylight savings changes in analytics, however 
 	time_zone = end[-3:]
 	
-	gs.set_timespan(
+	self.set_timespan(
 		get_nhl_datetime(date, start_time),
 		get_nhl_datetime(date, end_time)
 	)
@@ -40,6 +40,6 @@ def set_game_info(gs, soup):
 	
 	# attendance not always available
 	if len(venue[1]) > 0:
-		gs.attendance = int(venue[1].replace(',',''))
+		self.attendance = int(venue[1].replace(',',''))
 	
-	gs.venue = ' '.join(venue[3:])
+	self.venue = ' '.join(venue[3:])

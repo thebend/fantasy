@@ -18,12 +18,8 @@ class Goal():
 			util.get_number_list_string(self.away),
 			util.get_number_list_string(self.home)
 		)
-		
-def get_number_list_from_text(text):
-	""" return int array from text like '13, 20, 21, 31, 55' """
-	return [int(i) for i in text.split(', ')]
 
-def set_scoring_summary(gs, soup):
+def set_scoring_summary(self, soup):
 	# find scoring data
 	# title_td = soup.find('td',text='SCORING SUMMARY')
 	# title_parent_tr = title_td.parent.parent.parent.parent
@@ -62,9 +58,9 @@ def set_scoring_summary(gs, soup):
 			pass
 			
 		try:
-			g.away = get_number_list_from_text(away)
-			g.home = get_number_list_from_text(home)
-			gs.goals.append(g)
+			g.away = util.get_number_list_from_text(away)
+			g.home = util.get_number_list_from_text(home)
+			self.goals.append(g)
 		except ValueError:
 			# shootouts only list the winning shot?
 			# want more data, hopefully elsewhere

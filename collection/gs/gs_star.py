@@ -11,7 +11,7 @@ class Star():
 			self.player
 		)
 		
-def set_stars(gs, soup):
+def set_stars(self, soup):
 	# find star table
 	star_table = soup.table.tr.td.table
 	
@@ -28,5 +28,5 @@ def set_stars(gs, soup):
 		s.player = util.get_integer(player)
 		stars.append(s)
 		
-	gs.stars = stars
+	self.stars = stars
 	

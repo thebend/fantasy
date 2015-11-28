@@ -17,3 +17,8 @@ def get_number_list_string(numbers):
 
 def nz(data, default=''):
 	return data if data else default
+	
+def get_number_list_from_text(text):
+	""" return int array from text like '13, 20, 21, 31, 55' """
+	return [int(i) for i in text.split(', ')]
+	
