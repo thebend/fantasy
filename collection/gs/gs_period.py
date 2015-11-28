@@ -1,4 +1,4 @@
-import Util
+from collection import util
 
 class Period():
 	def __init__(self):
@@ -17,7 +17,7 @@ def get_team_periods_from_table(table):
 	
 	# skip heading row, total row
 	for tr in table('tr')[1:-1]:
-		td_values = [int(Util.clean_nbsp(td.text).strip()) for td in tr('td')]
+		td_values = [int(util.clean_nbsp(td.text).strip()) for td in tr('td')]
 		(period, goals, shots, penalties, penalty_minutes) = td_values
 		
 		p = Period()

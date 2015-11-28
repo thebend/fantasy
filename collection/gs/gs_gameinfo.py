@@ -1,5 +1,5 @@
 from datetime import datetime
-import Util
+from collection import util
 
 def get_nhl_datetime(date, time):
 	"""
@@ -28,7 +28,7 @@ def set_game_info(soup, gs):
 	
 	# timezone is consistent across host venue and not captured here
 	# should process timezone and daylight savings changes in analytics, however 
-	timeZone = end[-3:]
+	time_zone = end[-3:]
 	
 	gs.set_timespan(
 		get_nhl_datetime(date, start_time),
@@ -36,7 +36,7 @@ def set_game_info(soup, gs):
 	)
 	
 	# venue originally like "Attendance 19,745 at Air Canada Centre"
-	venue = Util.clean_nbsp(venue).split(' ')
+	venue = util.clean_nbsp(venue).split(' ')
 	
 	# attendance not always available
 	if len(venue[1]) > 0:

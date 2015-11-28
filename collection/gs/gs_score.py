@@ -1,4 +1,4 @@
-import Util
+from collection import util
 
 class Goal():
 	def __init__(self):
@@ -15,8 +15,8 @@ class Goal():
 			self.scorer,
 			self.assist1,
 			self.assist2 if self.assist2 else '',
-			Util.get_number_list_string(self.away),
-			Util.get_number_list_string(self.home)
+			util.get_number_list_string(self.away),
+			util.get_number_list_string(self.home)
 		)
 		
 def get_number_list_from_text(txt):

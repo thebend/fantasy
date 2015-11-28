@@ -1,7 +1,7 @@
-import Util
+from collection import util
 
 def get_officials_from_table(table):
-	return [Util.get_integer(tr.text) for tr in table('tr')]
+	return [util.get_integer(tr.text) for tr in table('tr')]
 	
 def set_officials(gs, soup):
 	# find cells with referee and linesmen lists

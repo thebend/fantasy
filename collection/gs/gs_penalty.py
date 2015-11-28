@@ -1,4 +1,4 @@
-import Util
+from collection import util
 
 class Penalty():
 	def __init__(self):
@@ -18,12 +18,12 @@ def get_team_penalties_from_table(table):
 	
 	for tr in table('tr', recursive=False)[1:]:
 		(number, period, time, player, minutes, penalty_type) = \
-			[Util.clean_nbsp(td.text).strip() for td in tr('td', recursive=False)]
+			[util.clean_nbsp(td.text).strip() for td in tr('td', recursive=False)]
 		
 		p = Penalty()
 		p.period = int(period)
 		p.time = time
-		player = Util.get_integer(player)
+		p.player = util.get_integer(player)
 		p.minutes = int(minutes)
 		p.penalty_type = penalty_type
 		

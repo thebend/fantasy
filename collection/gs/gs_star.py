@@ -1,4 +1,4 @@
-import Util
+from collection import util
 
 class Star():
 	def __init__(self):
@@ -23,7 +23,7 @@ def set_stars(gs, soup):
 		s.rank = int(rank[0])
 		s.team = team
 		s.position = s.position = position
-		s.player = Util.get_integer(player)
+		s.player = util.get_integer(player)
 		stars.append(s)
 		
 	gs.stars = stars

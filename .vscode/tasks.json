@@ -12,7 +12,7 @@
 	"command": "python",
 	"isShellCommand": true,
 	"showOutput": "always",
-	"args": ["${workspaceRoot}/collection/GSTest.py"]
+	"args": ["${workspaceRoot}\\test\\collection\\gs.py"]
 	/*"tasks": [
 		{
 			"taskName": "current",

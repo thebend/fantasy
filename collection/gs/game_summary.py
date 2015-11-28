@@ -1,4 +1,4 @@
-import Util
+from collection import util
 
 class GameSummary():
 	def __init__(self):
@@ -33,20 +33,25 @@ class GameSummary():
 '''{date}
 {start}-{end} ({duration})
 {attendance} people at {venue}
+
 Goals:
 {goals}
+
 Home Penalties:
 {home_penalties}
 Away Penalties:
 {away_penalties}
+
 Home Periods:
 {home_periods}
 Away Periods:
 {away_periods}
+
 Referees:
 {referees}
 Linesmen:
 {linesmen}
+
 Stars:
 {stars}'''
 		return format.format(
@@ -61,7 +66,7 @@ Stars:
 			away_penalties=self.get_penalty_table_string(self.away_penalties),
 			home_periods=self.get_period_table_string(self.home_periods),
 			away_periods=self.get_period_table_string(self.away_periods),
-			referees=Util.get_number_list_string(self.referees),
-			linesmen=Util.get_number_list_string(self.linesmen),
+			referees=util.get_number_list_string(self.referees),
+			linesmen=util.get_number_list_string(self.linesmen),
 			stars=self.get_star_table_string()
 		)
