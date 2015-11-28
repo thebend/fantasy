@@ -17,15 +17,13 @@ def get_team_penalties_from_table(table):
 	penalties = []
 	
 	for tr in table('tr', recursive=False)[1:]:
-		td_text = [Util.clean_nbsp(td.text).strip() for td in tr('td', recursive=False)]
-		(number, period, time, player, minutes, penalty_type) = td_text
-		# just get player number
-		player = player.split(' ')[0].strip()
+		(number, period, time, player, minutes, penalty_type) = \
+			[Util.clean_nbsp(td.text).strip() for td in tr('td', recursive=False)]
 		
 		p = Penalty()
 		p.period = int(period)
 		p.time = time
-		p.player = int(player)
+		player = Util.get_integer(player)
 		p.minutes = int(minutes)
 		p.penalty_type = penalty_type
 		
@@ -39,7 +37,7 @@ def set_penalty_summary(gs, soup):
 	penalty_summary_table = soup.td.table
 	data_tr = penalty_summary_table('tr')[1].td.table.tr.td.table.tr
 	
-	# find penalty table for each time
+	# find penalty table for each team
 	away = data_tr.td.table
 	home = data_tr('td', recursive=False)[-1].table
 	
