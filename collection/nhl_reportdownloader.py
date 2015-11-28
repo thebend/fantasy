@@ -23,6 +23,9 @@ gameid_re = re.compile('href="http://www.nhl.com/gamecenter/en/recap\\?id=\\d{6}
 def get_game_numbers(html):
 	return [int(i) for i in gameid_re.findall(html)]
 
+def make_tuple(x):
+	return x if type(x) in (tuple, list) else (x,)
+
 def get_all_game_report_html(
 	report_types = ('GS',),
 	seasons = (2014,),
@@ -38,8 +41,12 @@ def get_all_game_report_html(
 	game_types -- list of game types, any of 1, 2, or 3
 	starting_game_number -- integer for lowest of game numbers to retrieve
 	"""
-	if type(report_types) == str:
-		report_types = (report_types,)
+	# some arguments can be given as singular
+	# but will treat as 1-item tuples later
+	report_types = make_tuple(report_types)
+	seasons = make_tuple(seasons)
+	game_types = make_tuple(game_types)
+	 
 	for i in report_types:
 		if not i in nhl_urlgenerator.REPORT_ABBREVIATION:
 			raise Exception('report_types must be one of GS,ES,FC,FS,PL,TV,TH,RO,SS')
