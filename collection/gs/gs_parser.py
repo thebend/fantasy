@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
 from game_summary import GameSummary
-import gs_gameinfo
-import gs_score
-import gs_penalty
-import gs_period
-import gs_official
-import gs_star
+from gs_gameinfo import set_game_info
+from gs_score import set_scoring_summary
+from gs_penalty import set_penalty_summary
+from gs_period import set_period_summary
+from gs_official import set_officials
+from gs_star import set_stars
 
 def parse(html):
 	soup = BeautifulSoup(html, 'html.parser')
@@ -32,18 +32,18 @@ def parse(html):
 	) = soup.find(id='MainTable')('tr', recursive=False)
 	
 	try:
-		gs_gameinfo.set_game_info(gs, game_summary)
+		set_game_info(gs, game_summary)
 	except ValueError:
 		# if we didn't get game info, this is an empty report
 		return None
 	
-	gs_score.set_scoring_summary(gs, scoring_summary)
-	gs_penalty.set_penalty_summary(gs, penalty_summary)
-	gs_period.set_period_summary(gs, period_summary)
+	set_scoring_summary(gs, scoring_summary)
+	set_penalty_summary(gs, penalty_summary)
+	set_period_summary(gs, period_summary)
 	
 	(officials, stars) = officials_stars.td.table('tr', recursive=False)[1]('td', recursive=False)
-	gs_official.set_officials(gs, officials)
-	gs_star.set_stars(gs, stars)
+	set_officials(gs, officials)
+	set_stars(gs, stars)
 	
 	return gs
 		
