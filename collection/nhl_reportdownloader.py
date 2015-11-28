@@ -14,6 +14,7 @@ def get_all_game_report_html(report_type):
 		while unreported_games < 10:
 			game_number += 1
 			url = nhl_urlgenerator.get_game_report_url(season, game_type, game_number, report_type)
+			print url
 			response = requests.get(url)
 			
 			# if page not found, we tried loading a game that wasn't reported

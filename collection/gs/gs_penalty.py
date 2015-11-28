@@ -23,6 +23,9 @@ def get_team_penalties_from_table(table):
 		p = Penalty()
 		p.period = int(period)
 		p.time = time
+		
+		# problem - can have whole-team penalties!
+		print player
 		p.player = util.get_integer(player)
 		p.minutes = int(minutes)
 		p.penalty_type = penalty_type
