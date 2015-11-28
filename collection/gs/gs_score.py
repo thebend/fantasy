@@ -45,6 +45,7 @@ def set_scoring_summary(gs, soup):
 		else:
 			(assist1, assist2, away, home) = shot_tds[-4:]
 			
+		if period == 'OT': period = '4'
 		
 		g = Goal()
 		g.period = period
