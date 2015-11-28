@@ -9,7 +9,7 @@ def get_nhl_datetime(date, time):
 	datetime_string = '{} {} PM'.format(date, time)
 	return datetime.strptime(datetime_string, '%A, %B %d, %Y %I:%M %p')
 
-def set_game_info(soup, gs):
+def set_game_info(gs, soup):
 	"""
 	Sets the times, duration, venue, and attendance for a game
 	"""

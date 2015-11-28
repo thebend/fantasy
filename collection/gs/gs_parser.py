@@ -11,12 +11,6 @@ def parse(html):
 	soup = BeautifulSoup(html, 'html.parser')
 	gs = GameSummary()
 	
-	try:
-		gs_gameinfo.set_game_info(soup, gs)
-	except ValueError:
-		# if we didn't get game info, this is an empty report
-		return None
-	
 	# identify main table sections
 	(
 		game_summary,
@@ -36,6 +30,12 @@ def parse(html):
 		p7,
 		copyright
 	) = soup.find(id='MainTable')('tr', recursive=False)
+	
+	try:
+		gs_gameinfo.set_game_info(gs, game_summary)
+	except ValueError:
+		# if we didn't get game info, this is an empty report
+		return None
 	
 	gs_score.set_scoring_summary(gs, scoring_summary)
 	gs_penalty.set_penalty_summary(gs, penalty_summary)
