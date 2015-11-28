@@ -21,11 +21,11 @@ class GameSummary():
 		
 	@staticmethod
 	def get_period_table_string(periods):
-		data = '\n'.join([str(i) for i in periods])
-		return ' G  S Pn PM\n' + data
+		data = '\n'.join(['{:1} {}'.format(i+1,v) for i,v in enumerate(periods)])
+		return 'P  G  S Pn PM\n' + data
 	
 	def get_star_table_string(self):
-		data = '\n'.join([str(i) for i in self.stars])
+		data = '\n'.join(['{:1} {}'.format(i+1,v) for i,v in enumerate(self.stars)])
 		return '# Tm  P Pl\n' + data
 		
 	def __repr__(self):

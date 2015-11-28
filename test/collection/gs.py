@@ -5,11 +5,11 @@ cwd = os.getcwd()
 sys.path.append(cwd)
 
 from collection.gs import gs_parser
-from collection import nhl_reportdownloader
+from collection.nhl_reportdownloader import get_all_game_report_html
 
 iterations = 50
 count = 0
-for report_html in nhl_reportdownloader.get_all_game_report_html('GS'):
+for report_html in get_all_game_report_html('GS'):
 	count += 1
 	if count > iterations: break
 	print gs_parser.parse(report_html)

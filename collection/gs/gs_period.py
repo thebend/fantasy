@@ -17,10 +17,11 @@ def get_team_periods_from_table(table):
 	
 	# skip heading row, total row
 	for tr in table('tr')[1:-1]:
-		td_values = [int(util.clean_nbsp(td.text).strip()) for td in tr('td')]
-		(period, goals, shots, penalties, penalty_minutes) = td_values
+		(goals, shots, penalties, penalty_minutes) = \
+			[int(util.clean_nbsp(td.text).strip()) for td in tr('td')[1:]]
 		
 		p = Period()
+		# period will be inferred by order
 		p.goals = goals
 		p.shots = shots
 		p.penalties = penalties

@@ -1,15 +1,14 @@
 import requests
 import nhl_urlgenerator
 
-def get_all_game_report_html(report_type):
+def get_all_game_report_html(report_type, season = 2014, starting_game_number = 0):
 	if not report_type in nhl_urlgenerator.REPORT_ABBREVIATION:
 		raise Exception('report_type must be one of GS,ES,FC,FS,PL,TV,TH,RO,SS')
 	
 	# must loop through each season
-	season = 2014
 	for game_type in ('1','2','3'):
 		print 'Beginning search of %s games...' % (nhl_urlgenerator.GAMETYPE_DESCRIPTION[game_type],)
-		game_number = 0
+		game_number = starting_game_number
 		unreported_games = 0
 		while unreported_games < 10:
 			game_number += 1

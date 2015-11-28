@@ -14,3 +14,6 @@ def get_integer(text):
 def get_number_list_string(numbers):
 	""" return list of player numbers like '13,20,21,31,55' """
 	return ','.join([str(i) for i in numbers])
+
+def nz(data, default=''):
+	return data if data else default

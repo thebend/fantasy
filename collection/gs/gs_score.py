@@ -13,15 +13,15 @@ class Goal():
 			self.time,
 			self.team,
 			self.scorer,
-			self.assist1,
-			self.assist2 if self.assist2 else '',
+			util.nz(self.assist1),
+			util.nz(self.assist2),
 			util.get_number_list_string(self.away),
 			util.get_number_list_string(self.home)
 		)
 		
-def get_number_list_from_text(txt):
+def get_number_list_from_text(text):
 	""" return int array from text like '13, 20, 21, 31, 55' """
-	return [int(i) for i in txt.split(', ')]
+	return [int(i) for i in text.split(', ')]
 
 def set_scoring_summary(gs, soup):
 	# find scoring data
@@ -32,7 +32,19 @@ def set_scoring_summary(gs, soup):
 	
 	# all trs except first, which is a label
 	for tr in scoring_summary_table('tr')[1:]:
-		(goal_number, period, time, strength, team, scorer, assist1, assist2, away, home) = [td.text.strip() for td in tr('td')]
+		shot_tds = [td.text.strip() for td in tr('td')]
+		# unsuccessful penalty shot
+		if shot_tds[0] == '-': continue
+		
+		(goal_number, period, time, strength, team, scorer) = shot_tds[:6]
+		# number of cells is reduced when "Penalty Shot" spans both assist tds
+		if shot_tds[6] == 'Penalty Shot':
+			assist1 = ''
+			assist2 = ''
+			(away, home) = shot_tds[-2:]
+		else:
+			(assist1, assist2, away, home) = shot_tds[-4:]
+			
 		
 		g = Goal()
 		g.period = period
@@ -47,6 +59,12 @@ def set_scoring_summary(gs, soup):
 		except ValueError:
 			# it's normal that sometimes we won't have assists		
 			pass
-		g.away = get_number_list_from_text(away)
-		g.home = get_number_list_from_text(home)
-		gs.goals.append(g)
+			
+		try:
+			g.away = get_number_list_from_text(away)
+			g.home = get_number_list_from_text(home)
+			gs.goals.append(g)
+		except ValueError:
+			# shootouts only list the winning shot?
+			# want more data, hopefully elsewhere
+			pass

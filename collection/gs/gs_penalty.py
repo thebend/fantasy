@@ -8,7 +8,7 @@ class Penalty():
 		return '{:1} {:>5} {:2} {:1} {:15}'.format(
 			self.period,
 			self.time,
-			self.player,
+			util.nz(self.player),
 			self.minutes,
 			self.penalty_type
 		)
@@ -21,12 +21,16 @@ def get_team_penalties_from_table(table):
 			[util.clean_nbsp(td.text).strip() for td in tr('td', recursive=False)]
 		
 		p = Penalty()
+		
+		# how will this be recorded in playoffs when multiple OT periods?
+		if period == 'OT': period = 4
 		p.period = int(period)
+		
 		p.time = time
 		
-		# problem - can have whole-team penalties!
-		print player
-		p.player = util.get_integer(player)
+		try: p.player = util.get_integer(player)
+		# Can have whole-team penalties with no player
+		except ValueError: p.player = None
 		p.minutes = int(minutes)
 		p.penalty_type = penalty_type
 		
