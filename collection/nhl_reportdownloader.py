@@ -2,8 +2,10 @@ import re
 import requests
 import nhl_urlgenerator
 import Queue
+import ConfigParser
 
-threadpool_size = 20
+config = ConfigParser.RawConfigParser()
+config.read('fantasy.conf')
 
 def get_game_report_html(url):
 		print url
@@ -94,7 +96,7 @@ def get_all_game_report_html(
 	urls_active = url_queue.qsize()
 	response_queue = Queue.Queue()
 	threads = []
-	for i in range(threadpool_size):
+	for i in range(config.getint('nhl','concurrent_connections')):
 		t = threading.Thread(target=game_report_html_downloader, args=(url_queue, response_queue))
 		t.daemon = True
 		threads.append(t)
