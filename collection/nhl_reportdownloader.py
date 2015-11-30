@@ -1,6 +1,7 @@
 import re
 import requests
 import nhl_urlgenerator
+import threading
 import Queue
 import ConfigParser
 
@@ -81,19 +82,19 @@ def get_all_game_report_html(
 	seasons = make_tuple(seasons)
 	game_types = make_tuple(game_types)
 	
-	import threading
-	
 	for i in report_types:
-		if not i in nhl_urlgenerator.REPORT_ABBREVIATION:
-			raise Exception('report_types must be one of GS,ES,FC,FS,PL,TV,TH,RO,SS')
+		nhl_urlgenerator.validate_report_type(i)
 	
+	# create queue with all urls to parse
 	url_queue = Queue.Queue()
 	for url in get_all_game_report_urls(
 		report_types, seasons, game_types, starting_game_number
 	):
 		url_queue.put(url)
-	
+	# note number of urls so we know when finished
 	urls_active = url_queue.qsize()
+	
+	# start threads to download and parse data
 	response_queue = Queue.Queue()
 	threads = []
 	for i in range(config.getint('nhl','concurrent_connections')):
@@ -102,6 +103,7 @@ def get_all_game_report_html(
 		threads.append(t)
 		t.start()
 	
+	# yield all data as it comes in
 	while urls_active > 0:
 		html = response_queue.get()
 		urls_active -= 1

@@ -18,6 +18,10 @@ REPORT_ABBREVIATION = {
 	'SS': 'Shot Report'
 }
 
+def validate_report_type(report_type):
+	if not report_type in REPORT_ABBREVIATION.keys():
+		raise ValueError('Invalid report_type (must be one of GS,ES,FC,FS,PL,TV,TH,RO,SS)')
+
 def get_game_report_url(season, game_type, game_number, report_type):
 	"""
 	Return the URL for a particular report type for a particular game
@@ -32,13 +36,11 @@ def get_game_report_url(season, game_type, game_number, report_type):
 	"""
 	
 	if not 1900 <= int(season) <= date.today().year:
-		raise Exception('Season must be a year no greater than the current year')
+		raise ValueError('Season must be a year no greater than the current year')
 	if not 1 <= int(game_type) <= 3:
-		raise Exception('Invalid game_type (must be 1, 2, or 3)')
+		raise ValueError('Invalid game_type (must be 1, 2, or 3)')
 	if not 1 <= int(game_number) <= 9999:
-		raise Exception('Invalid game_number (must be between 1 and 9999)')
-	if not report_type in REPORT_ABBREVIATION.keys():
-		raise Exception('Invalid report_type (must be one of GS,ES,FC,FS,PL,TV,TH,RO,SS)')
+		raise ValueError('Invalid game_number (must be between 1 and 9999)')
 		
 	url = 'http://www.nhl.com/scores/htmlreports/{}{}/{}{:02d}{:04d}.HTM'.format(
 		season, int(season) + 1,
