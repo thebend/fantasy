@@ -2,7 +2,9 @@ import re
 import requests
 import nhl_urlgenerator
 import Queue
-		
+
+threadpool_size = 20
+
 def get_game_report_html(url):
 		print url
 		response = requests.get(url)
@@ -92,7 +94,6 @@ def get_all_game_report_html(
 	urls_active = url_queue.qsize()
 	response_queue = Queue.Queue()
 	threads = []
-	threadpool_size = 10
 	for i in range(threadpool_size):
 		t = threading.Thread(target=game_report_html_downloader, args=(url_queue, response_queue))
 		t.daemon = True
