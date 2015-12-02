@@ -40,3 +40,21 @@ def get_table_string(heading, data):
 	data_string = '\n'.join([str(i) for i in data])
 	return heading+'\n'+data_string
 	
+def get_db_connection():
+	import pyodbc
+	import ConfigParser
+	
+	config = ConfigParser.RawConfigParser()
+	config.read('fantasy.conf')
+	
+	connection_string = 'DRIVER={{{}}};SERVER={};PORT={};DATABASE={};UID={};PWD={}'.format(
+		config.get('database','driver'),
+		config.get('database','host'),
+		config.get('database','port'),
+		config.get('database','database'),
+		config.get('database','username'),
+		config.get('database','password')
+	)
+	
+	connection = pyodbc.connect(connection_string)
+	return connection

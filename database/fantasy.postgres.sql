@@ -1,8 +1,4 @@
-﻿DROP TABLE IF EXISTS game_event;
-DROP TABLE IF EXISTS event_type;
-DROP TABLE IF EXISTS event_category;
-
-DROP TABLE IF EXISTS penalty;
+﻿DROP TABLE IF EXISTS penalty;
 DROP TABLE IF EXISTS penalty_type;
 DROP TABLE IF EXISTS penalty_category;
 
@@ -13,6 +9,11 @@ DROP TABLE IF EXISTS shift;
 DROP TABLE IF EXISTS game_official;
 DROP TABLE IF EXISTS official_role;
 DROP TABLE IF EXISTS role_type;
+
+DROP TABLE IF EXISTS shot;
+
+DROP TABLE IF EXISTS game_event;
+DROP TABLE IF EXISTS event_type;
 
 DROP TABLE IF EXISTS game;
 
@@ -100,7 +101,7 @@ CREATE TABLE team_jersey (
 CREATE TABLE logo_usage (
 	logo_id int NOT NULL REFERENCES team_logo,
 	start_date date NOT NULL,
-	end_date date CHECK (end_date > start_date), -- ensure null works
+	end_date date CHECK (end_date > start_date),
 	PRIMARY KEY (logo_id, start_date),
 	UNIQUE (logo_id, end_date)
 );
@@ -138,8 +139,8 @@ CREATE TABLE injury_category (
 	injury_category_id serial PRIMARY KEY,
 	injury_category_name varchar(100)
 );
-/* could categorize injuries by cut, bruise, strain, break
-by fight, boards, puck... */
+-- could categorize injuries by cut, bruise, strain, break
+-- by fight, boards, puck...
 INSERT INTO injury_category (injury_category_id, injury_category_name) VALUES
 (1,'Other'),
 (2,'Pulled Muscle'),
@@ -161,16 +162,17 @@ CREATE TABLE injury (
 	injury_type_id int REFERENCES injury_type,
 	severity int CHECK (severity > 0), 
 	return_to_practice date,
-	return_to_game date --could be inferred from actual game data?
+	return_to_game date --could be inferred from actual game data
 );
 
---could track contract extensions
+-- could track contract extensions?
 CREATE TABLE contract (
 	contract_id serial PRIMARY KEY,
 	person_id int REFERENCES person,
 	team_id int REFERENCES team,
 	start_date date NOT NULL,
-	end_date date,
+	end_date date CHECK (end_date > start_date),
+	--ensure start date, end_date is not between other contract dates
 	player_number int NOT NULL CHECK (player_number > 0)
 );
 
@@ -235,6 +237,42 @@ CREATE TABLE game (
 	UNIQUE (away_team_id, end_time)
 );
 
+CREATE TABLE event_type (
+	event_type_id serial PRIMARY KEY,
+	event_name varchar(100) UNIQUE NOT NULL
+);
+INSERT INTO event_type (event_type_id, event_name) VALUES
+(1,'Hit'),
+(2,'Giveaway'),
+(3,'Takeaway'),
+(4,'Faceoff');
+
+CREATE TABLE game_event (
+	event_id serial PRIMARY KEY,
+	game_id int NOT NULL REFERENCES game,
+	period int NOT NULL CHECK (period > 0),
+	event_time time NOT NULL,
+	event_type_id int NOT NULL REFERENCES event_type,
+	-- player that "won" the exchange (hit someone, won faceoff, etc.)
+	actor_id int NOT NULL REFERENCES person,
+	-- the player that "lost" the exchange
+	casualty_id int REFERENCES person
+);
+-- need solution for whole-team events.  I think.
+-- could just add actor_team_id, casualty_team_id here?
+
+CREATE TABLE shot (
+	shot_id serial PRIMARY KEY,
+	period int NOT NULL CHECK (period > 0),
+	shot_time time NOT NULL,
+	shooter_id int NOT NULL REFERENCES person,
+	assist1_id int REFERENCES person,
+	assist2_id int REFERENCES person,
+	--can be inferred elsewhere
+	goalie_id int NOT NULL REFERENCES person,
+	goal boolean NOT NULL DEFAULT FALSE
+);
+
 CREATE TABLE role_type (
 	role_type_id serial PRIMARY KEY,
 	role_type_name varchar(100) UNIQUE
@@ -270,7 +308,6 @@ CREATE TABLE shift (
 	game_id int REFERENCES game,
 	person_id int REFERENCES person,
 	period int NOT NULL CHECK (period > 0),
-	-- using game clock, not absolute time
 	start_time time NOT NULL,
 	end_time time CHECK (end_time > start_time)
 );
@@ -327,46 +364,32 @@ CREATE TABLE penalty (
 	target_team_id int REFERENCES team,
 	game_official_id int REFERENCES game_official
 );
-/*
-how specific to make these event tables?
 
-I have a shootout table, very specific.
-What about a penalty table?
-A pass table?
-A shot table?
-A fight table?
-*/
-CREATE TABLE event_category (
-	event_category_id serial PRIMARY KEY,
-	category_name varchar(100) UNIQUE NOT NULL
-);
-INSERT INTO event_category (event_category_id, category_name) VALUES
-(1,'Penalty'),
-(2,'Shot'),
-(3,'Pass'),
-(4,'Save'),
-(5,'Goal');
---specific metadata for each type, needs own tables
---review event list from icetracker to determine all categories
-CREATE TABLE event_type (
-	event_type_id serial PRIMARY KEY,
-	event_category_id int REFERENCES event_category,
-	event_name varchar(100) UNIQUE NOT NULL
-);
-INSERT INTO event_type (event_type_id, event_category_id, event_name) VALUES
-(1,1,'Checking Penalty'),
-(2,1,'Slashing Penalty'),
-(3,1,'Fighting Penalty');
-
-CREATE TABLE game_event (
-	event_id serial PRIMARY KEY,
-	game_id int NOT NULL REFERENCES game,
-	source_person_id int REFERENCES person,
-	target_person_id int REFERENCES person,
-	source_team_id int REFERENCES team,
-	target_team_id int REFERENCES team,
-	game_official_id int REFERENCES game_official,
-	event_type_id int REFERENCES event_type,
-	period int CHECK (period > 0),
-	event_time time 
-);
+-- must define useful views
+-- eg. right now game_event links to player
+-- must tie player to contract to team for a given date
+CREATE VIEW game_event_extended AS
+SELECT
+	game_event.event_id,
+	game_event.game_id,
+	actor.person_id AS actor_id,
+	actor_contract.player_number AS actor_player_number,
+	actor.first_name AS actor_first_name,
+	actor.last_name AS actor_last_name,
+	casualty.person_id AS casualty_id,
+	casualty_contract.player_number AS casualty_player_number,
+	casualty.first_name AS casualty_first_name,
+	casualty.last_name AS casualty_last_name
+FROM game_event
+INNER JOIN game ON
+	game_event.game_id = game.game_id
+INNER JOIN person AS actor ON
+	game_event.actor_id = actor.person_id
+INNER JOIN contract as actor_contract ON
+	actor.person_id = actor_contract.person_id AND
+	game.start_time BETWEEN actor_contract.start_date AND actor_contract.end_date
+LEFT JOIN person as casualty ON
+	game_event.casualty_id = casualty.person_id
+LEFT JOIN contract as casualty_contract ON
+	casualty.person_id = casualty_contract.person_id AND
+	game.start_time BETWEEN casualty_contract.start_date AND casualty_contract.end_date;

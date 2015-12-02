@@ -12,41 +12,24 @@
 	"command": "python",
 	"isShellCommand": true,
 	"showOutput": "always",
-	"args": ["${workspaceRoot}\\test\\collection\\gs.py"]
-	/*"tasks": [
-		{
-			"taskName": "current",
-			"isBuildCommand": true,
-			"args": ["${file}"]
-		},
-		{
-			"taskName": "test",
-			"isTestCommand": true,
-			"args": ["${workspaceRoot}/collection/GSTest.py"]
-		}
-	]*/
-}
-/*
-[
-	{
-		"version": "0.1.0",
-		"command": "python",
-		"isShellCommand": true,
-		"showOutput": "always",
+	"args": ["-B"], // don't generate .pyc files on import
+	"suppressTaskName": true,
+	"tasks": [{
 		"taskName": "current",
 		"isBuildCommand": true,
 		"args": ["${file}"]
 	},{
-		"version": "0.1.0",
-		"command": "python",
-		"isShellCommand": true,
-		"showOutput": "always",
 		"taskName": "test",
 		"isTestCommand": true,
-		"args": ["${workspaceRoot}/Test.py"]
-	}
-]
-*/
+		"args": ["${workspaceRoot}/test/collection/gs.py"]
+	},{
+		"taskName": "icetracker",
+		"args": ["${workspaceRoot}/collection/icetracker/icetracker.py"]
+	},{
+		"taskName": "database",
+		"args": ["${workspaceRoot}/database/recreate.py"]
+	}]
+}
 // A task runner that calls the Typescript compiler (tsc) and
 // Compiles a HelloWorld.ts program
 /*

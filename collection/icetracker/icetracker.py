@@ -42,7 +42,9 @@ def get_ice_tracker_data(gameId):
 sample_game_id = '2015020279'
 data = get_ice_tracker_data(sample_game_id)
 
+types = set()
 for i in data:
+	types.add(i.event_type)
 	print '{} {} {:3} {:10} {:55}'.format(
 		i.period,
 		i.time,
@@ -50,3 +52,5 @@ for i in data:
 		i.event_type,
 		i.event_description
 	)
+
+print types
