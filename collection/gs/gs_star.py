@@ -5,7 +5,8 @@ class Star():
 		pass
 	
 	def __repr__(self):
-		return '{:3} {:1} {:>2}'.format(
+		return '{:1} {:3} {:1} {:>2}'.format(
+			self.rank,
 			self.team,
 			self.position,
 			self.player
@@ -19,8 +20,8 @@ def set_stars(self, soup):
 	for tr in star_table('tr'):
 		(rank, team, position, player) = [td.text for td in tr('td')]
 		s = Star()
-		# rank is inferred by order in list
-		# s.rank = int(rank[0])
+		# rank can be inferred by order in list
+		s.rank = int(rank[0])
 		# sometimes no stars given
 		if len(team) == 0: break
 		s.team = team

@@ -19,22 +19,18 @@ class GameSummary():
 		self.duration = end - start
 		
 	def get_goal_table_string(self):
-		data = '\n'.join([str(g) for g in self.goals])
-		return 'P Time  Tm.  G A1 A2 Away              Home\n' + data
+		return util.get_table_string('P Time  Tm.  G A1 A2 Away              Home', self.goals)
 	
 	@staticmethod
 	def get_penalty_table_string(penalties):
-		data = '\n'.join([str(i) for i in penalties])
-		return 'P Time  Pl M Type\n' + data
+		return util.get_table_string('P Time  Pl M Type', penalties)
 		
 	@staticmethod
 	def get_period_table_string(periods):
-		data = '\n'.join(['{:1} {}'.format(i+1,v) for i,v in enumerate(periods)])
-		return 'P  G  S Pn PM\n' + data
+		return util.get_table_string('P  G  S Pn PM', periods)
 	
 	def get_star_table_string(self):
-		data = '\n'.join(['{:1} {}'.format(i+1,v) for i,v in enumerate(self.stars)])
-		return '# Tm  P Pl\n' + data
+		return util.get_table_string('# Tm  P Pl', self.stars)
 		
 	def __repr__(self):
 		format = \

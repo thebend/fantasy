@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS game_event;
+﻿DROP TABLE IF EXISTS game_event;
 DROP TABLE IF EXISTS event_type;
 DROP TABLE IF EXISTS event_category;
 
@@ -41,7 +41,7 @@ DROP TABLE IF EXISTS team_logo;
 DROP TABLE IF EXISTS team_name;
 DROP TABLE IF EXISTS team;
 
-DELETE TYPE IF EXISTS gender_type;
+DROP TYPE IF EXISTS gender_type;
 
 CREATE TYPE gender_type AS ENUM ('male','female','other');
 -- do I need to NOT NULL my REFERENCES constraints?
@@ -94,11 +94,11 @@ CREATE TABLE team_jersey (
 	
 	jersey_type_id int NOT NULL REFERENCES jersey_type,
 	jersey_description varchar(100),
-	jersey_image bytea UNIQUE,
+	jersey_image bytea UNIQUE
 );
 
 CREATE TABLE logo_usage (
-	logo_id int NOT NULL REFERNECES logo,
+	logo_id int NOT NULL REFERENCES team_logo,
 	start_date date NOT NULL,
 	end_date date CHECK (end_date > start_date), -- ensure null works
 	PRIMARY KEY (logo_id, start_date),
@@ -140,7 +140,7 @@ CREATE TABLE injury_category (
 );
 /* could categorize injuries by cut, bruise, strain, break
 by fight, boards, puck... */
-INSERT INTO injury_category (injury_category, injury_category_name) VALUES
+INSERT INTO injury_category (injury_category_id, injury_category_name) VALUES
 (1,'Other'),
 (2,'Pulled Muscle'),
 (3,'Broken Bone');
@@ -212,7 +212,7 @@ CREATE TABLE stadium (
 	stadium_id serial PRIMARY KEY,
 	city_id int NOT NULL REFERENCES city,
 	stadium_name varchar(100) NOT NULL,
-	capacity int CHECK (capacity > 0),
+	capacity int CHECK (capacity > 0)
 );
 
 CREATE TABLE game (
@@ -220,7 +220,7 @@ CREATE TABLE game (
 	home_team_id int NOT NULL REFERENCES team,
 	away_team_id int NOT NULL REFERENCES team CHECK (home_team_id != away_team_id),
 	home_jersey_id int REFERENCES team_jersey,
-	away_team_id int REFERENCES team_jersey,
+	away_jersey_id int REFERENCES team_jersey,
 	stadium_id int REFERENCES stadium,
 	start_time timestamp with time zone NOT NULL,
 	end_time timestamp with time zone CHECK (end_time > start_time),

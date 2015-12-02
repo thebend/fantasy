@@ -5,7 +5,8 @@ class Period():
 		pass
 		
 	def __repr__(self):
-		return '{:2} {:2} {:2} {:2}'.format(
+		return '{:1} {:2} {:2} {:2} {:2}'.format(
+			self.period,
 			self.goals,
 			self.shots,
 			self.penalties,
@@ -17,15 +18,16 @@ def get_team_periods_from_table(table):
 	
 	# skip heading row, total row
 	for tr in table('tr')[1:-1]:
-		(goals, shots, penalties, penalty_minutes) = \
-			[int(util.clean_nbsp(td.text).strip()) for td in tr('td')[1:]]
+		(period, goals, shots, penalties, penalty_minutes) = \
+			[util.clean_nbsp(td.text).strip() for td in tr('td')]
 		
 		p = Period()
-		# period will be inferred by order
-		p.goals = goals
-		p.shots = shots
-		p.penalties = penalties
-		p.penalty_minutes = penalty_minutes
+		# period can also be inferred by order
+		p.period = util.get_numeric_period(period) 
+		p.goals = int(goals)
+		p.shots = int(shots)
+		p.penalties = int(penalties)
+		p.penalty_minutes = int(penalty_minutes)
 		periods.append(p)
 		
 	return periods

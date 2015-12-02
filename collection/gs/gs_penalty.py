@@ -22,15 +22,13 @@ def get_team_penalties_from_table(table):
 		
 		p = Penalty()
 		
-		# how will this be recorded in playoffs when multiple OT periods?
-		if period == 'OT': period = 4
-		p.period = int(period)
-		
+		p.period = util.get_numeric_period(period)
 		p.time = time
 		
 		try: p.player = util.get_integer(player)
 		# Can have whole-team penalties with no player
 		except ValueError: p.player = None
+		
 		p.minutes = int(minutes)
 		p.penalty_type = penalty_type
 		
