@@ -26,7 +26,7 @@
 		"taskName": "icetracker",
 		"args": ["${workspaceRoot}/collection/icetracker/icetracker.py"]
 	},{
-		"taskName": "database",
+		"taskName": "recreate-database",
 		"args": ["${workspaceRoot}/database/recreate.py"]
 	}]
 }

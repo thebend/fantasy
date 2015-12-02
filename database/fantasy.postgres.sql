@@ -1,48 +1,5 @@
-﻿DROP TABLE IF EXISTS penalty;
-DROP TABLE IF EXISTS penalty_type;
-DROP TABLE IF EXISTS penalty_category;
-
-DROP TABLE IF EXISTS shootout;
-
-DROP TABLE IF EXISTS shift;
-
-DROP TABLE IF EXISTS game_official;
-DROP TABLE IF EXISTS official_role;
-DROP TABLE IF EXISTS role_type;
-
-DROP TABLE IF EXISTS shot;
-
-DROP TABLE IF EXISTS game_event;
-DROP TABLE IF EXISTS event_type;
-
-DROP TABLE IF EXISTS game;
-
-DROP TABLE IF EXISTS stadium;
-
-DROP TABLE IF EXISTS team_position;
-DROP TABLE IF EXISTS position;
-DROP TABLE IF EXISTS position_type;
-
-DROP TABLE IF EXISTS contract;
-
-DROP TABLE IF EXISTS injury;
-DROP TABLE IF EXISTS injury_type;
-DROP TABLE IF EXISTS injury_category;
-
-DROP TABLE IF EXISTS person_weight;
-DROP TABLE IF EXISTS person;
-
-DROP TABLE IF EXISTS city_population;
-DROP TABLE IF EXISTS city;
-
-DROP TABLE IF EXISTS logo_usage;
-DROP TABLE IF EXISTS team_jersey;
-DROP TABLE IF EXISTS jersey_type;
-DROP TABLE IF EXISTS team_logo;
-DROP TABLE IF EXISTS team_name;
-DROP TABLE IF EXISTS team;
-
-DROP TYPE IF EXISTS gender_type;
+﻿DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 
 CREATE TYPE gender_type AS ENUM ('male','female','other');
 -- do I need to NOT NULL my REFERENCES constraints?
@@ -63,7 +20,7 @@ CREATE TABLE team_name (
 	UNIQUE (team_id, end_date)
 );
 
-CREATE TABLE team_logo (
+CREATE TABLE logo (
 	logo_id serial PRIMARY KEY,
 	team_id int NOT NULL REFERENCES team,
 	logo_name varchar(100) UNIQUE NOT NULL,
@@ -79,7 +36,7 @@ INSERT INTO jersey_type (jersey_type_id, type_description) VALUES
 (2,'Away'),
 (3,'Legacy');
 
-CREATE TABLE team_jersey (
+CREATE TABLE jersey (
 	jersey_id serial PRIMARY KEY,
 	team_id int NOT NULL REFERENCES team,
 	start_date date NOT NULL,
@@ -99,7 +56,7 @@ CREATE TABLE team_jersey (
 );
 
 CREATE TABLE logo_usage (
-	logo_id int NOT NULL REFERENCES team_logo,
+	logo_id int NOT NULL REFERENCES logo,
 	start_date date NOT NULL,
 	end_date date CHECK (end_date > start_date),
 	PRIMARY KEY (logo_id, start_date),
@@ -176,22 +133,22 @@ CREATE TABLE contract (
 	player_number int NOT NULL CHECK (player_number > 0)
 );
 
-CREATE TABLE position_type (
-	position_type_id serial PRIMARY KEY,
-	position_type_name varchar(100)
+CREATE TABLE position_category (
+	position_category_id serial PRIMARY KEY,
+	position_category_name varchar(100)
 );
-INSERT INTO position_type (position_type_id, position_type_name) VALUES
+INSERT INTO position_category (position_category_id, position_category_name) VALUES
 (1,'Offense'),
 (2,'Defense'),
 (3,'Goalie');
 
-CREATE TABLE position (
-	position_id serial PRIMARY KEY,
+CREATE TABLE position_type (
+	position_type_id serial PRIMARY KEY,
 	position_name varchar(100) UNIQUE NOT NULL,
 	position_abbr varchar(4) UNIQUE NOT NULL,
-	position_type int
+	position_category_id int NOT NULL REFERENCES position_category
 );
-INSERT INTO position (position_id, position_name, position_abbr, position_type) VALUES
+INSERT INTO position_type (position_type_id, position_name, position_abbr, position_category_id) VALUES
 (1,'Left Wing',    'LW',1),
 (2,'Center',       'C', 1),
 (3,'Right Wing',   'RW',1),
@@ -199,14 +156,14 @@ INSERT INTO position (position_id, position_name, position_abbr, position_type) 
 (5,'Defense Right','DR',2),
 (6,'Goalie',       'G', 3);
 
-CREATE TABLE team_position (
-	team_position_id serial PRIMARY KEY,
+CREATE TABLE position (
+	position_id serial PRIMARY KEY,
+	person_id int REFERENCES person,
 	team_id int REFERENCES team,
 	line_number int NOT NULL CHECK (line_number > 0),
-	position_id int REFERENCES position,
+	position_type_id int REFERENCES position,
 	start_date date NOT NULL,
 	end_date date CHECK (end_date > start_date),
-	person_id int REFERENCES person,
 	UNIQUE (team_id, line_number, position_id, start_date)
 );
 
@@ -221,8 +178,8 @@ CREATE TABLE game (
 	game_id serial PRIMARY KEY,
 	home_team_id int NOT NULL REFERENCES team,
 	away_team_id int NOT NULL REFERENCES team CHECK (home_team_id != away_team_id),
-	home_jersey_id int REFERENCES team_jersey,
-	away_jersey_id int REFERENCES team_jersey,
+	home_jersey_id int REFERENCES jersey,
+	away_jersey_id int REFERENCES jersey,
 	stadium_id int REFERENCES stadium,
 	start_time timestamp with time zone NOT NULL,
 	end_time timestamp with time zone CHECK (end_time > start_time),
