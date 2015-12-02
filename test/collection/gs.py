@@ -1,11 +1,7 @@
+import set_path
+
 from datetime import datetime
 start_time = datetime.now()
-
-# add project directory to python path
-import os
-import sys
-cwd = os.getcwd()
-sys.path.append(cwd)
 
 from collection.gs import GameSummary
 from collection.nhl_reportdownloader import get_all_game_report_html
