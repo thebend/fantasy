@@ -218,10 +218,21 @@ CREATE TABLE game_event (
 -- need solution for whole-team events.  I think.
 -- could just add actor_team_id, casualty_team_id here?
 
+CREATE TABLE shot_type (
+	shot_type_id serial PRIMARY KEY,
+	shot_name varchar(100) UNIQUE NOT NULL
+);
+INSERT INTO shot_type (shot_type_id, shot_name) VALUES
+(1,'Slapshot'),
+(2,'Wristshot'),
+(3,'Backhand');
+
 CREATE TABLE shot (
 	shot_id serial PRIMARY KEY,
+	game_id int NOT NULL REFERENCES game,
 	period int NOT NULL CHECK (period > 0),
 	shot_time time NOT NULL,
+	shot_type_id int REFERENCES shot_type,
 	shooter_id int NOT NULL REFERENCES person,
 	assist1_id int REFERENCES person,
 	assist2_id int REFERENCES person,
@@ -232,7 +243,7 @@ CREATE TABLE shot (
 
 CREATE TABLE role_type (
 	role_type_id serial PRIMARY KEY,
-	role_type_name varchar(100) UNIQUE
+	role_type_name varchar(100) UNIQUE NOT NULL
 );
 INSERT INTO role_type (role_type_id, role_type_name) VALUES
 (1,'Referee'),
