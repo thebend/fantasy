@@ -1,8 +1,9 @@
-﻿DROP SCHEMA public CASCADE;
+﻿;-- ignore first command because of UTF byte order mark file prefix in file corrupting it
+
+DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 
 CREATE TYPE gender_type AS ENUM ('male','female','other');
--- do I need to NOT NULL my REFERENCES constraints?
 
 CREATE TABLE team (
 	team_id serial PRIMARY KEY,
@@ -13,12 +14,21 @@ CREATE TABLE team_name (
 	team_name_id serial PRIMARY KEY,
 	team_id int NOT NULL REFERENCES team,
 	start_date date NOT NULL,
-	end_date date CHECK (end_date > start_date), -- ensure null works
+	end_date date CHECK (end_date > start_date),
 	team_name varchar(100) NOT NULL,
-	team_code char(3) NOT NULL,
-	UNIQUE (team_id, start_date),
-	UNIQUE (team_id, end_date)
+	
+	-- team codes are always capitalized
+	team_code char(3) NOT NULL CHECK (team_code = upper(team_code))
 );
+
+-- team codes not necessarily unique over time
+-- but are unique for any specific point in time
+-- 
+-- think I could be making too many indexes
+-- but this is a high-query database, so I don't know?
+-- must read up on best practices
+CREATE INDEX ON team_name USING hash (team_code);
+CREATE INDEX ON team_name USING hash (team_name);
 
 CREATE TABLE logo (
 	logo_id serial PRIMARY KEY,
@@ -26,6 +36,7 @@ CREATE TABLE logo (
 	logo_name varchar(100) UNIQUE NOT NULL,
 	logo bytea UNIQUE NOT NULL
 );
+CREATE INDEX ON logo USING hash (logo);
 
 CREATE TABLE jersey_type (
 	jersey_type_id serial PRIMARY KEY,
@@ -59,8 +70,7 @@ CREATE TABLE logo_usage (
 	logo_id int NOT NULL REFERENCES logo,
 	start_date date NOT NULL,
 	end_date date CHECK (end_date > start_date),
-	PRIMARY KEY (logo_id, start_date),
-	UNIQUE (logo_id, end_date)
+	PRIMARY KEY (logo_id, start_date)
 );
 
 CREATE TABLE city (

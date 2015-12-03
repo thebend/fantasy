@@ -11,5 +11,6 @@ cmd = 'psql -f database/fantasy.postgres.sql -h {} -p {} -d {} -U {}'.format(
 	config.get('database','database'),
 	config.get('database','username')
 )
+# setting password this way doesn't always seem to work?
 os.system(password_cmd)
 os.system(cmd)

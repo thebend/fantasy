@@ -34,8 +34,8 @@ class GameSummary():
 		
 	def __repr__(self):
 		format = \
-'''{date}
-{start}-{end} ({duration})
+'''{date:%Y-%m-%d}
+{start:%H:%M}-{end:%H:%M} ({duration})
 {attendance} people at {venue}
 
 Goals:
@@ -59,9 +59,9 @@ Linesmen:
 Stars:
 {stars}'''
 		return format.format(
-			date=self.start.strftime('%Y-%m-%d'),
-			start=self.start.strftime('%H:%M'),
-			end=self.end.strftime('%H:%M'),
+			date=self.start,
+			start=self.start.strftime,
+			end=self.end,
 			duration=self.duration,
 			attendance=self.attendance if self.attendance else 0,
 			venue=self.venue,
