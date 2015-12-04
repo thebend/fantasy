@@ -67,7 +67,7 @@ def get_ice_tracker_data(gameId):
 
 	# parse html
 	html = requests.get(url).text
-	soup = BeautifulSoup(html)
+	soup = BeautifulSoup(html, 'html.parser')
 
 	data = []
 	# data in all table rows inside div#allPlays>table
