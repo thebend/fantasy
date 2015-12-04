@@ -7,7 +7,8 @@ CREATE TYPE gender_type AS ENUM ('male','female','other');
 
 CREATE TABLE team (
 	team_id serial PRIMARY KEY,
-	established_date date NOT NULL
+	start_date date NOT NULL,
+	end_date date CHECK (end_date > start_date)
 );
 
 CREATE TABLE team_name (
@@ -20,6 +21,7 @@ CREATE TABLE team_name (
 	-- team codes are always capitalized
 	team_code char(3) NOT NULL CHECK (team_code = upper(team_code))
 );
+
 
 -- team codes not necessarily unique over time
 -- but are unique for any specific point in time
@@ -38,17 +40,17 @@ CREATE TABLE logo (
 );
 CREATE INDEX ON logo USING hash (logo);
 
-CREATE TABLE jersey_type (
-	jersey_type_id serial PRIMARY KEY,
+CREATE TABLE uniform_type (
+	uniform_type_id serial PRIMARY KEY,
 	type_description varchar(100) UNIQUE
 );
-INSERT INTO jersey_type (jersey_type_id, type_description) VALUES
+INSERT INTO uniform_type (uniform_type_id, type_description) VALUES
 (1,'Home'),
 (2,'Away'),
 (3,'Legacy');
 
-CREATE TABLE jersey (
-	jersey_id serial PRIMARY KEY,
+CREATE TABLE uniform (
+	uniform_id serial PRIMARY KEY,
 	team_id int NOT NULL REFERENCES team,
 	start_date date NOT NULL,
 	end_date date,
@@ -61,9 +63,9 @@ CREATE TABLE jersey (
 	secondary_green smallint,
 	secondary_blue smallint,
 	
-	jersey_type_id int NOT NULL REFERENCES jersey_type,
-	jersey_description varchar(100),
-	jersey_image bytea UNIQUE
+	uniform_type_id int NOT NULL REFERENCES uniform_type,
+	uniform_description varchar(100),
+	uniform_image bytea UNIQUE
 );
 
 CREATE TABLE logo_usage (
@@ -84,6 +86,13 @@ CREATE TABLE city_population (
 	population_date date NOT NULL,
 	population int NOT NULL CHECK (population > 0),
 	PRIMARY KEY (city_id, population_date)
+);
+
+CREATE TABLE team_city (
+	team_id int NOT NULL REFERENCES team,
+	city_id int NOT NULL REFERENCES city,
+	start_date date NOT NULL,
+	end_date date CHECK (end_date > start_date)
 );
 
 CREATE TABLE person (
@@ -188,8 +197,8 @@ CREATE TABLE game (
 	game_id serial PRIMARY KEY,
 	home_team_id int NOT NULL REFERENCES team,
 	away_team_id int NOT NULL REFERENCES team CHECK (home_team_id != away_team_id),
-	home_jersey_id int REFERENCES jersey,
-	away_jersey_id int REFERENCES jersey,
+	home_uniform_id int REFERENCES uniform,
+	away_uniform_id int REFERENCES uniform,
 	stadium_id int REFERENCES stadium,
 	start_time timestamp with time zone NOT NULL,
 	end_time timestamp with time zone CHECK (end_time > start_time),
@@ -371,3 +380,93 @@ LEFT JOIN person as casualty ON
 LEFT JOIN contract as casualty_contract ON
 	casualty.person_id = casualty_contract.person_id AND
 	game.start_time BETWEEN casualty_contract.start_date AND casualty_contract.end_date;
+
+CREATE FUNCTION is_born(target_person_id int, target_date date) RETURNS boolean AS $$
+	BEGIN
+		RETURN EXISTS(
+			SELECT 1
+			FROM person
+			WHERE
+				person_id = target_person_id AND
+				target_date >= dob
+		);
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION is_team_during_date(target_team_id int, target_start_date date) RETURNS boolean AS $$
+	BEGIN
+		RETURN EXISTS(
+			SELECT 1
+			FROM team
+			WHERE
+				team_id = target_team_id AND
+				target_start_date BETWEEN start_date AND end_date
+		);
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION is_date_overlap(start1 date, end1 date, start2 date, end2 date) RETURNS boolean AS $$
+	BEGIN
+		RETURN (
+			start1 BETWEEN start2 AND end2 OR
+			end1 BETWEEN start2 AND end2
+		);
+	END;
+$$ LANGUAGE plpgsql;
+
+-- automate testing process for these functions
+CREATE FUNCTION has_date_overlap(
+	tbl regclass,
+	tbl_key text, search_key int,
+	start_date date, end_date date
+) RETURNS boolean AS $$
+	DECLARE
+		i RECORD; -- tbl%ROWTYPE
+	BEGIN
+		FOR i IN EXECUTE format(
+			'SELECT start_date, end_date FROM %s WHERE %s = %s',
+			tbl, tbl_key, search_key
+		) LOOP
+			IF is_date_overlap(i.start_date, i.end_date, start_date, end_date) THEN
+				RETURN TRUE;
+			END IF;
+		END LOOP;
+		RETURN FALSE;
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION check_team_name_dates() RETURNS trigger AS $$
+	BEGIN
+		IF NOT is_team_during_date(NEW.team_id, NEW.start_date) THEN
+			RAISE EXCEPTION 'Team name cannot be set outside team operating period';
+		END IF;
+		
+		IF has_date_overlap(
+			'team_name',
+			'team_id', NEW.team_id,
+			NEW.start_date, NEW.end_date
+		) THEN
+			RAISE EXCEPTION 'Team name cannot be set outside team operating period';
+		END IF;
+		RETURN NEW;
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER team_name_dates_check
+BEFORE INSERT OR UPDATE ON team_name
+FOR EACH ROW
+EXECUTE PROCEDURE check_team_name_dates();
+
+INSERT INTO team (team_id, start_date, end_date) VALUES 
+(1, '2000-01-01', '2010-01-01');
+
+-- A team name existing before the team
+INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
+(1, 'Van99', 'VAN', '1999-01-01', null);
+
+-- A team date overlapping another date
+-- INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
+-- (1, 'Van2000', 'VAN', '2000-01-01', null),
+-- (1, 'Van2001', 'VAN', '2001-01-01', null);
+-- INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
+-- (1, 'VanOverlap','VAN','2000-06-01','2001-06-01');
