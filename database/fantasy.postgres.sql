@@ -393,6 +393,17 @@ CREATE FUNCTION is_born(target_person_id int, target_date date) RETURNS boolean 
 	END;
 $$ LANGUAGE plpgsql;
 
+CREATE FUNCTION validate_born(
+	target_person_id int, target_date date, error_text text
+) RETURNS void AS $$
+	BEGIN
+		IF NOT is_born(target_person_id, target_date) THEN
+			RAISE EXCEPTION '%s', error_text;
+		END IF;
+		RETURN;
+	END;
+$$ LANGUAGE plpgsql;
+
 CREATE FUNCTION is_team_during_date(target_team_id int, target_start_date date) RETURNS boolean AS $$
 	BEGIN
 		RETURN EXISTS(
@@ -402,6 +413,17 @@ CREATE FUNCTION is_team_during_date(target_team_id int, target_start_date date) 
 				team_id = target_team_id AND
 				target_start_date BETWEEN start_date AND end_date
 		);
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION validate_team_during_date(
+	target_team_id int, target_start_date date, error_text text
+) RETURNS void AS $$
+	BEGIN
+		IF NOT is_team_during_date(target_team_id, target_start_date) THEN
+			RAISE EXCEPTION '%s', error_text;
+		END IF;
+		RETURN;
 	END;
 $$ LANGUAGE plpgsql;
 
@@ -416,16 +438,15 @@ $$ LANGUAGE plpgsql;
 
 -- automate testing process for these functions
 CREATE FUNCTION has_date_overlap(
-	tbl regclass,
-	tbl_key text, search_key int,
+	tbl regclass, tbl_key_field text, search_key int,
 	start_date date, end_date date
 ) RETURNS boolean AS $$
 	DECLARE
-		i RECORD; -- tbl%ROWTYPE
+		i RECORD;
 	BEGIN
 		FOR i IN EXECUTE format(
 			'SELECT start_date, end_date FROM %s WHERE %s = %s',
-			tbl, tbl_key, search_key
+			tbl, tbl_key_field, search_key
 		) LOOP
 			IF is_date_overlap(i.start_date, i.end_date, start_date, end_date) THEN
 				RETURN TRUE;
@@ -435,19 +456,32 @@ CREATE FUNCTION has_date_overlap(
 	END;
 $$ LANGUAGE plpgsql;
 
+CREATE FUNCTION validate_date_overlap(
+	tbl regclass, tbl_key_field text, search_key int,
+	start_date date, end_date date,
+	error_text text
+) RETURNS void AS $$
+	BEGIN
+		IF has_date_overlap(
+			tbl, tbl_key_field, search_key, start_date, end_date
+		) THEN
+			RAISE EXCEPTION '%s', error_text;
+		END IF;
+		RETURN;
+	END;
+$$ LANGUAGE plpgsql;
+
 CREATE FUNCTION check_team_name_dates() RETURNS trigger AS $$
 	BEGIN
-		IF NOT is_team_during_date(NEW.team_id, NEW.start_date) THEN
-			RAISE EXCEPTION 'Team name cannot be set outside team operating period';
-		END IF;
-		
-		IF has_date_overlap(
-			'team_name',
-			'team_id', NEW.team_id,
-			NEW.start_date, NEW.end_date
-		) THEN
-			RAISE EXCEPTION 'Team name cannot be set outside team operating period';
-		END IF;
+		SELECT validate_team_during_date(
+			NEW.team_id, NEW.start_date,
+			'Team name cannot be set outside team operating period'
+		);
+		SELECT validate_date_overlap(
+			'team_name', 'team_id', NEW.team_id,
+			NEW.start_date, NEW.end_date,
+			'Team name periods cannot overlap'
+		);
 		RETURN NEW;
 	END;
 $$ LANGUAGE plpgsql;
