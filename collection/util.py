@@ -25,7 +25,8 @@ def get_number_list_from_text(text):
 def get_numeric_period(period):
 	""" returns the period as an integer, converting OT to 4 if necessary """
 	period = period[0] # only first character of period matters
-	if period == 'O': return 4
+	if period == 'O': return 4 # OT (overtime) becomes period 4
+	if period == 'S': return 5 # SO (shootout) becomes period 5
 	# in playoff games, OT periods are numbered 4, 5, 6... automatically
 	return int(period)
 	

@@ -195,8 +195,20 @@ CREATE TABLE stadium (
 	end_date date CHECK (end_date > start_date)
 );
 
+CREATE TABLE season (
+	season_id serial PRIMARY KEY,
+	season_code varchar(10) NOT NULL UNIQUE,
+	season_description varchar(100) NOT NULL UNIQUE
+);
+INSERT INTO season (season_id, season_code, season_description) VALUES
+(1,'1','Pre-Season'),
+(2,'2','Regular Season'),
+(3,'3','Playoffs');
+
 CREATE TABLE game (
 	game_id serial PRIMARY KEY,
+	game_number int CHECK (game_number > 0),
+	season_id int NOT NULL REFERENCES season,
 	home_team_id int NOT NULL REFERENCES team,
 	away_team_id int NOT NULL REFERENCES team CHECK (home_team_id != away_team_id),
 	home_uniform_id int REFERENCES uniform,
@@ -449,52 +461,21 @@ CREATE FUNCTION is_time_overlap(start1 time, end1 time, start2 time, end2 time) 
 	END;
 $$ LANGUAGE plpgsql;
 
--- automate testing process for these functions
-CREATE FUNCTION has_date_overlap(
-	tbl regclass, tbl_key_field text, search_key int,
-	start_date date, end_date date
-) RETURNS boolean AS $$
+CREATE FUNCTION check_team_name_dates() RETURNS trigger AS $$
 	DECLARE
 		i RECORD;
-	BEGIN
-		FOR i IN EXECUTE format(
-			'SELECT start_date, end_date FROM %s WHERE %s = %s',
-			tbl, tbl_key_field, search_key
-		) LOOP
-			IF is_date_overlap(i.start_date, i.end_date, start_date, end_date) THEN
-				RETURN TRUE;
-			END IF;
-		END LOOP;
-		RETURN FALSE;
-	END;
-$$ LANGUAGE plpgsql;
-
-CREATE FUNCTION validate_date_overlap(
-	tbl regclass, tbl_key_field text, search_key int,
-	start_date date, end_date date,
-	error_text text
-) RETURNS void AS $$
-	BEGIN
-		IF has_date_overlap(
-			tbl, tbl_key_field, search_key, start_date, end_date
-		) THEN
-			RAISE EXCEPTION '%s', error_text;
-		END IF;
-		RETURN;
-	END;
-$$ LANGUAGE plpgsql;
-
-CREATE FUNCTION check_team_name_dates() RETURNS trigger AS $$
 	BEGIN
 		SELECT validate_team_during_date(
 			NEW.team_id, NEW.start_date,
 			'Team name date range extends outside team operating period'
 		);
-		SELECT validate_date_overlap(
-			'team_name', 'team_id', NEW.team_id,
-			NEW.start_date, NEW.end_date,
-			'Team name periods overlap'
-		);
+		FOR i IN
+			SELECT start_date, end_date FROM team_name WHERE team_id = NEW.team_id
+		LOOP
+			IF is_date_overlap(i.start_date, i.end_date, start_date, end_date) THEN
+				RAISE EXCEPTION 'Team name periods overlap';
+			END IF;
+		END LOOP;
 		RETURN NEW;
 	END;
 $$ LANGUAGE plpgsql;
@@ -555,11 +536,12 @@ CREATE FUNCTION check_contract_dates() RETURNS trigger AS $$
 			NEW.person_id, NEW.start_date,
 			'Contract starts before person is born'
 		);
-		SELECT validate_date_overlap(
+		IF has_date_overlap(
 			'contract', 'person_id', NEW.person_id,
-			NEW.start_date, NEW.end_date,
-			'Contract periods overlap'
-		);
+			NEW.start_date, NEW.end_date
+		) THEN
+			RAISE EXCEPTION 'Contract periods overlap';
+		END IF;
 		RETURN NEW;
 	END;
 $$ LANGUAGE plpgsql;
@@ -568,6 +550,9 @@ CREATE TRIGGER contract_check
 BEFORE INSERT OR UPDATE ON contract
 FOR EACH ROW EXECUTE PROCEDURE check_contract_dates();
 
+-- validate CONTRACT during date.
+-- use on game_event, penalty tables, maybe others?
+-- instead of checking to see whether player was active on the ice
 CREATE FUNCTION check_position_dates() RETURNS trigger AS $$
 	DECLARE
 		i RECORD;
@@ -791,6 +776,7 @@ BEFORE INSERT OR UPDATE ON shot
 FOR EACH ROW EXECUTE PROCEDURE check_shot_times();
 
 -- a player not on shift could still be source or target of penalty
+-- should check if in game instead
 CREATE FUNCTION check_penalty_times() RETURNS trigger AS $$
 	BEGIN
 		SELECT validate_on_shift(
@@ -814,12 +800,75 @@ CREATE FUNCTION check_penalty_times() RETURNS trigger AS $$
 	END;
 $$ LANGUAGE plpgsql;
 
+-- a player not on shift could still be actor or casualty of event
+-- should check if in game instead
+CREATE FUNCTION check_game_event_times() RETURNS trigger AS $$
+	BEGIN
+		SELECT validate_on_shift(
+			NEW.actor_id, NEW.game_id, NEW.period, NEW.event_time,
+			'Player that was primary actor of event not on shift at the time.'
+		);
+		SELECT validate_on_shift(
+			NEW.casualty_id, NEW.game_id, NEW.period, NEW.event_time,
+			'Player that was casualty of event not on shift at the time.'
+		);
+		RETURN NEW;
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER game_event_check
+BEFORE INSERT OR UPDATE ON game_event
+FOR EACH ROW EXECUTE PROCEDURE check_game_event_times();
+
+CREATE TRIGGER penalty_check
+BEFORE INSERT OR UPDATE ON penalty
+FOR EACH ROW EXECUTE PROCEDURE check_penalty_times();
+
+CREATE FUNCTION check_shootout() RETURNS trigger AS $$
+	DECLARE
+		shootout_required boolean;
+	BEGIN
+		-- ensure player is on team during game
+		IF NOT EXISTS(
+			SELECT 1
+			FROM game
+			INNER JOIN contract ON (
+				contract.team_id = game.home_team_id AND
+				contract.player_id = NEW.home_player_id
+			)
+		) THEN
+			RAISE EXCEPTION 'Home player not contracted to the home team in this shootout round';
+		END IF;
+		IF NOT EXISTS(
+			SELECT 1
+			FROM game
+			INNER JOIN contract ON (
+				contract.team_id = game.away_team_id AND
+				contract.player_id = NEW.away_player_id
+			)
+		) THEN
+			RAISE EXCEPTION 'Away player not contracted to the away team in this shootout round';
+		END IF;
+		
+		-- ensure game was tied (at point of shootout) or a win by 1 (end of game)
+		SELECT (abs(home_score - away_score) <= 1) INTO shootout_required
+		FROM game
+		WHERE
+			game.game_id = NEW.game_id AND
+			game.season_id IN (1,2); -- no shootouts in the playoffs
+		IF NOT shootout_required THEN
+			RAISE EXCEPTION 'Shootout for a game that was not tied';
+		END IF;
+		RETURN NEW;
+	END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER shootout_check
+BEFORE INSERT OR UPDATE ON shot
+FOR EACH ROW EXECUTE PROCEDURE check_shootout();
+
 INSERT INTO team (team_id, start_date, end_date) VALUES 
 (1, '2000-01-01', '2010-01-01');
-
--- shootout, make sure game was tied
--- game_event, just like shot but with team_id checks too
--- replace validate_date_overlap with specific functions
 
 -- A team name existing before the team
 INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
