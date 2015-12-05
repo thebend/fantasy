@@ -371,6 +371,7 @@ CREATE TABLE penalty (
 -- must define useful views
 -- eg. right now game_event links to player
 -- must tie player to contract to team for a given date
+-- currently inner joining contract, but that might not be available?
 CREATE VIEW game_event_extended AS
 SELECT
 	game_event.event_id,
@@ -396,6 +397,36 @@ LEFT JOIN person as casualty ON
 LEFT JOIN contract as casualty_contract ON
 	casualty.person_id = casualty_contract.person_id AND
 	game.start_time BETWEEN casualty_contract.start_date AND casualty_contract.end_date;
+
+-- should create game summary table with total goals, penalties, etc.
+CREATE VIEW game_summary AS
+SELECT
+	game.game_id,
+	game.start_time,
+	home_team_name.team_code AS home_team_code,
+	away_team_name.team_code AS away_team_code,
+	COUNT(*) as goals
+FROM game
+INNER JOIN team AS home_team ON
+	game.home_team_id = home_team.team_id
+INNER JOIN team_name AS home_team_name ON
+	home_team_name.team_id = home_team.team_id AND
+	game.start_time BETWEEN home_team_name.start_date AND home_team_name.end_date
+INNER JOIN team AS away_team ON
+	game.away_team_id = away_team.team_id
+INNER JOIN team_name AS away_team_name ON
+	away_team_name.team_id = away_team.team_id AND
+	game.start_time BETWEEN away_team_name.start_date AND away_team_name.end_date
+LEFT JOIN shot ON
+	game.game_id = shot.game_id AND
+	shot.goal
+GROUP BY
+	game.game_id,
+	game.start_time,
+	home_team_name.team_code,
+	away_team_name.team_code
+ORDER BY game.start_time DESC;
+
 
 CREATE FUNCTION is_born(target_person_id int, target_date date) RETURNS boolean AS $$
 	BEGIN
@@ -871,8 +902,8 @@ INSERT INTO team (team_id, start_date, end_date) VALUES
 (1, '2000-01-01', '2010-01-01');
 
 -- A team name existing before the team
-INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
-(1, 'Van99', 'VAN', '1999-01-01', null);
+-- INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
+-- (1, 'Van99', 'VAN', '1999-01-01', null);
 
 -- A team date overlapping another date
 -- INSERT INTO team_name (team_id, team_name, team_code, start_date, end_date) VALUES
