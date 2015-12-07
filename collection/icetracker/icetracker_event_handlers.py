@@ -16,7 +16,7 @@ class Player():
 handler = {}
 def icetracker_handler(event_type):
 	"""
-	Decorator to build a map of
+	Decorator to build a dictionary of
 	event types to their description handlers
 	"""
 	def get_handler(f):

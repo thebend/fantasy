@@ -13,9 +13,6 @@ class IceTrackerEventDetail():
 		return str(self.data)
 		
 class IceTrackerRow():
-	def __init__(self):
-		pass
-		
 	def __repr__(self):
 		return '{} {} {:3} {:10} {:55}\n{}'.format(
 			self.period,
