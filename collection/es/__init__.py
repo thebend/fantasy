@@ -2,7 +2,10 @@ from bs4 import BeautifulSoup
 
 def get_from_html(html):
 	soup = BeautifulSoup(html, 'html.parser')
-	data_table = soup.table('tr', recursive=False)[7].td.table
+	data_table = soup.table('tr', recursive=False)[7].table
+	# .tag is equal to .find('tag').  ('tag') is equal to .find_all('tag').
+	# below line is equivalent to above line, for example
+	# data_table = soup.find('table').find_all('tr', recursive=False)[7].find('table')
 	
 	# start with away team
 	away = True
