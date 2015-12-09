@@ -1,3 +1,6 @@
+"""
+Game Summary
+"""
 from collection import util
 	
 class GameSummary():

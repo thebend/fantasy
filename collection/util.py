@@ -3,6 +3,13 @@ nbsp = unichr(160)
 def clean_nbsp(text):
 	""" return string with non-breaking spaces (unichr(160)) replaced with regular spaces """
 	return text.replace(nbsp, ' ')
+	
+def clean_str(text):
+	"""
+	return string with non-breaking spaces (unichr(160)) replaced with regular spaces,
+	and whitespace stripped from ends of string
+	"""
+	return clean_nbsp(text).strip()
 
 def get_integer(text):
 	"""

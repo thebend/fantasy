@@ -19,11 +19,19 @@
 		"isBuildCommand": true,
 		"args": ["${file}"]
 	},{
-		"taskName": "test",
+		"taskName": "test-es",
+		"isTestCommand": true,
+		"args": ["${workspaceRoot}/test/collection/es.py"]
+	},{
+		"taskName": "test-fc",
+		"isTestCommand": true,
+		"args": ["${workspaceRoot}/test/collection/fc.py"]
+	},{
+		"taskName": "test-gs",
 		"isTestCommand": true,
 		"args": ["${workspaceRoot}/test/collection/gs.py"]
 	},{
-		"taskName": "icetracker",
+		"taskName": "test-icetracker",
 		"args": ["${workspaceRoot}/test/collection/icetracker.py"]
 	},{
 		"taskName": "recreate-database",
