@@ -1,5 +1,8 @@
 """
 Game Summary
+
+Must revisit this more complex parser and clean up
+to conform to same format as other parsers
 """
 from collection import util
 	
@@ -63,7 +66,7 @@ Stars:
 {stars}'''
 		return format.format(
 			date=self.start,
-			start=self.start.strftime,
+			start=self.start,
 			end=self.end,
 			duration=self.duration,
 			attendance=self.attendance if self.attendance else 0,

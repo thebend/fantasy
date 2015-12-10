@@ -9,7 +9,6 @@ config = ConfigParser.RawConfigParser()
 config.read('fantasy.conf')
 
 def get_game_report_html(url):
-		print url
 		response = requests.get(url)
 		
 		# if page not found, we tried loading a game that wasn't reported
@@ -43,30 +42,28 @@ def get_game_numbers(html):
 def make_tuple(x):
 	return x if type(x) in (tuple, list) else (x,)
 
-def get_all_game_report_urls(report_types, seasons, game_types, starting_game_number = 0):
+def get_game_report_urls(report_types, seasons, game_types, category_games = 0, starting_game_number = 0):
 	for season in seasons:
 		print 'Beginning search of %s-%s season' % (season, season + 1)
 		for game_type in game_types:
 			print 'Beginning search of %s games...' % (nhl_urlgenerator.GAMETYPE_DESCRIPTION[game_type],)
 			
 			gamelist_url = get_gamelist_url(season, game_type)
-			print gamelist_url
 			response = requests.get(gamelist_url)
 			html = response.text
 			game_numbers = get_game_numbers(html)
 			
 			target_game_numbers = sorted([i for i in game_numbers if i >= starting_game_number])
+			# limit number of games returned per category if requested
+			if category_games > 0:
+				target_game_numbers = target_game_numbers[:min(len(target_game_numbers),category_games)]
 			for game_number in target_game_numbers:
 				for report_type in report_types:
 					url = nhl_urlgenerator.get_game_report_url(season, game_type, game_number, report_type)
 					yield url
 					
-def get_all_game_report_html(
-	report_types = ('GS',),
-	seasons = (2014,),
-	game_types = (2,),
-	starting_game_number = 0
-):
+# what part of this still takes for ever?
+def get_all_game_report_html(report_types, seasons, game_types, category_games = 0, starting_game_number = 0):
 	"""
 	Yield HTML of all specified reports
 	
@@ -87,9 +84,7 @@ def get_all_game_report_html(
 	
 	# create queue with all urls to parse
 	url_queue = Queue.Queue()
-	for url in get_all_game_report_urls(
-		report_types, seasons, game_types, starting_game_number
-	):
+	for url in get_game_report_urls(report_types, seasons, game_types, category_games, starting_game_number):
 		url_queue.put(url)
 	# note number of urls so we know when finished
 	urls_active = url_queue.qsize()

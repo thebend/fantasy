@@ -13,19 +13,19 @@ class Star():
 		)
 		
 def set_stars(self, soup):
-	# find star table
-	star_table = soup.table.tr.td.table
+	star_table = soup.table.table
 	
 	stars = []
 	for tr in star_table('tr'):
 		(rank, team, position, player) = [td.text for td in tr('td')]
+		# sometimes no stars given, which causes blank team
+		if len(team) == 0: break
+		
 		s = Star()
 		# rank can be inferred by order in list
 		s.rank = int(rank[0])
-		# sometimes no stars given
-		if len(team) == 0: break
 		s.team = team
-		s.position = s.position = position
+		s.position = position
 		s.player = util.get_integer(player)
 		stars.append(s)
 		
