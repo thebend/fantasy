@@ -20,16 +20,14 @@
 		"args": ["${file}"]
 	},{
 		"taskName": "test-es",
-		"isTestCommand": true,
-		"args": ["${workspaceRoot}/test/collection/test.py", "ES"]
+		"args": ["${workspaceRoot}/test/collection/nhl_report.py", "ES"]
 	},{
 		"taskName": "test-fc",
 		"isTestCommand": true,
-		"args": ["${workspaceRoot}/test/collection/test.py", "FC"]
+		"args": ["${workspaceRoot}/test/collection/nhl_report.py", "FC"]
 	},{
 		"taskName": "test-gs",
-		"isTestCommand": true,
-		"args": ["${workspaceRoot}/test/collection/test.py", "GS"]
+		"args": ["${workspaceRoot}/test/collection/nhl_report.py", "GS"]
 	},{
 		"taskName": "test-icetracker",
 		"args": ["${workspaceRoot}/test/collection/icetracker.py"]

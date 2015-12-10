@@ -44,9 +44,11 @@ def make_tuple(x):
 
 def get_game_report_urls(report_types, seasons, game_types, category_games = 0, starting_game_number = 0):
 	for season in seasons:
-		print 'Beginning search of %s-%s season' % (season, season + 1)
 		for game_type in game_types:
-			print 'Beginning search of %s games...' % (nhl_urlgenerator.GAMETYPE_DESCRIPTION[game_type],)
+			print 'Beginning search of {}-{} {} games...'.format(
+				season, season+1,
+				nhl_urlgenerator.GAMETYPE_DESCRIPTION[game_type]
+			)
 			
 			gamelist_url = get_gamelist_url(season, game_type)
 			response = requests.get(gamelist_url)
@@ -62,7 +64,6 @@ def get_game_report_urls(report_types, seasons, game_types, category_games = 0, 
 					url = nhl_urlgenerator.get_game_report_url(season, game_type, game_number, report_type)
 					yield url
 					
-# what part of this still takes for ever?
 def get_all_game_report_html(report_types, seasons, game_types, category_games = 0, starting_game_number = 0):
 	"""
 	Yield HTML of all specified reports
