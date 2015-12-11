@@ -112,23 +112,32 @@ PENALTY_TYPES = set([
 	'Embellishment',
 	'Checking from behind',
 	'Kneeing',
-	'Spearing'
+	'Spearing',
+	'Instigator',
+	'Delaying the game',
+	'Concealing puck'
 ])
+def format_penalty(aggressor, penalty_type, casualty):
+	return '{:25.25} {:25.25} {:25.25}'.format(
+		aggressor,
+		penalty_type,
+		casualty
+	) 
+
 @icetracker_handler('Penalty')
 def penalty_processor(text):
 	if ' against ' in text:
 		(text, casualty) = text.split(' against ')
+	elif ' served by ' in text:
+		(penalty_type, aggressor) = text.split(' served by ')
+		return format_penalty(aggressor, penalty_type, None)
 	else:
 		casualty = None
 		
-	# served by penalty has different format, must handle first
-	# can any penalty be served by someone else?
-	if 'Too many men/ice' in text:
-		return ('Too many men/ice', text.split(' served by ')[-1]) 
 	for penalty_type in PENALTY_TYPES:
 		if penalty_type in text:
 			aggressor = text[:-(len(penalty_type) + 2)]
-			return (aggressor, penalty_type, casualty)
+			return format_penalty(aggressor, penalty_type, casualty)
 	raise Exception('Could not match a penalty type for "{}"'.format(text))
 	
 @icetracker_handler('Goal')
@@ -157,3 +166,6 @@ def goal_processor(text):
 	assists = players[1:]
 	return shooter, shot_type, assists
 	
+# 1 07:24 VAN Penalty    Brandon Sutter Interference - Goalkeeper against Sergei Bobrovsky
+# 3 09:55 NJD Penalty    Adam Larsson Interference against Jared McCann served by Bobby Farnham
+# need to set up test where I pass specific predetermined strings to processor

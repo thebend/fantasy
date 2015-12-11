@@ -23,12 +23,11 @@ class IceTrackerRow():
 			self.details
 		)
 		
-def get_ice_tracker_data(gameId):
-	url = 'http://www.nhl.com/gamecenter/en/icetracker?id=%s' % gameId
-	print url
+def get_url(game_id):
+	url = 'http://www.nhl.com/gamecenter/en/icetracker?id={}'.format(game_id)
+	return url
 	
-	# parse html
-	html = requests.get(url).text
+def get_data(html):
 	soup = BeautifulSoup(html, 'html.parser')
 
 	data = []
