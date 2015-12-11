@@ -39,8 +39,3 @@ def get_from_html(html):
 	process_rows(home_rows)
 	print "Away Team"
 	process_rows(away_rows)
-			
-import requests
-url = 'http://www.nhl.com/scores/htmlreports/20142015/FC010001.HTM'
-response = requests.get(url)
-get_from_html(response.text)

@@ -47,14 +47,9 @@ def get_from_html(html):
 		except:
 			pm = ''
 		
-		print '{:1} {:>2} {:1} {:22} {:1} {:1} {:1} {:>2} {:>2} {:>3} {:>5} {:>3} {:>5} {:>5} {:>5} {:>5} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>3}'.format(
+		print '{:1} {:>2} {:1} {:22.22} {:1} {:1} {:1} {:>2} {:>2} {:>3} {:>5} {:>3} {:>5} {:>5} {:>5} {:>5} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>2} {:>3}'.format(
 			'A' if away else 'H',
 			num, pos, name.encode('ascii','replace'), g, a, p, pm, pn, pim,
 			tot, shf, avg, pp, sh, ev,
 			s, ab, ms, th, gv, tk, bs, fw, fl, fp
 		)
-			
-import requests
-url = 'http://www.nhl.com/scores/htmlreports/20142015/ES010001.HTM'
-response = requests.get(url)
-get_from_html(response.text)
