@@ -25,7 +25,8 @@ class IceTrackerRow():
 		
 def get_ice_tracker_data(gameId):
 	url = 'http://www.nhl.com/gamecenter/en/icetracker?id=%s' % gameId
-
+	print url
+	
 	# parse html
 	html = requests.get(url).text
 	soup = BeautifulSoup(html, 'html.parser')
@@ -33,18 +34,23 @@ def get_ice_tracker_data(gameId):
 	data = []
 	# data in all table rows inside div#allPlays>table
 	for tr in soup.find(id='allPlays')('tr'):
-		(period, team, eventName, eventDesc, vid) = [str(util.clean_nbsp(td.text).strip()) for td in tr('td')]
+		(period, team, eventName, eventDesc, vid) = [util.clean_str(td.text) for td in tr('td')]
 		
 		r = IceTrackerRow()
-		period, time = period.split(' ')
-		r.period = util.get_numeric_period(period)
-		r.time = time
+		if period == 'Shootout':
+			r.period = 5
+			r.time = None
+			eventName = 'Shootout ' + eventName
+		else:
+			period, time = period.split(' ')
+			r.period = util.get_numeric_period(period)
+			r.time = time
 		
 		if len(team) == 0: team = None
 		r.team = team
 
 		# period end should really have an event type
-		if eventDesc == 'period end': eventName = 'Period End'
+		if eventDesc in ('shootout complete', 'period end'): eventName = 'Period End'
 		r.event_type = eventName
 		r.event_description = eventDesc
 		r.details = IceTrackerEventDetail(eventDesc, eventName)

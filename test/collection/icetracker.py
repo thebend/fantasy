@@ -2,7 +2,7 @@ import set_path
 from collection import icetracker
 
 # will still have to load list of games to loop through each of them
-sample_game_id = '2015020001'
+sample_game_id = '2015020093'
 for i in range(100):
 	game_id = str(int(sample_game_id)+i)
 	print game_id

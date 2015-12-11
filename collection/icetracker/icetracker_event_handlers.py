@@ -69,6 +69,18 @@ def shot_processor(text):
 			return (shot_type, shooter, goalie)
 	raise Exception('Could not match a shot type for "{}"'.format(text))
 	
+@icetracker_handler('Shootout Goal')
+def shootout_goal_processor(text):
+	return text.split(' - ')
+	
+@icetracker_handler('Shootout Missed')
+def shootout_missed_processor(text):
+	return text.split(' - ')
+	
+@icetracker_handler('Shootout Shot')
+def shootout_shot_processor(text):
+	return shot_processor(text)
+	
 PENALTY_TYPES = set([
 	'Tripping',
 	'Closing hand on puck',
@@ -95,7 +107,12 @@ PENALTY_TYPES = set([
 	'Game misconduct',
 	'Elbowing',
 	'Clipping',
-	'Too many men/ice'
+	'Too many men/ice',
+	'Hi stick - double minor', # why is this specifically a double minor?  Can anything be?
+	'Embellishment',
+	'Checking from behind',
+	'Kneeing',
+	'Spearing'
 ])
 @icetracker_handler('Penalty')
 def penalty_processor(text):
