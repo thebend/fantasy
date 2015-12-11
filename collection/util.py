@@ -49,7 +49,14 @@ def get_table_string(heading, data):
 	data_string = '\n'.join([str(i) for i in data])
 	return heading+'\n'+data_string
 	
+db_connection = None
 def get_db_connection():
+	"""
+	Returns a connection to the database,
+	using an existing one if available
+	or creating a new one if necessary
+	"""
+	if db_connection: return db_connection
 	import pyodbc
 	import ConfigParser
 	
@@ -65,5 +72,5 @@ def get_db_connection():
 		config.get('database','password')
 	)
 	
-	connection = pyodbc.connect(connection_string)
-	return connection
+	db_connection = pyodbc.connect(connection_string)
+	return db_connection
