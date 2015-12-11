@@ -1,7 +1,8 @@
 import set_path
 import sys
 import ConfigParser
-from collection import nhl_reportdownloader
+from collection import downloader
+from collection.nhlreport import urlgenerator
 
 config = ConfigParser.RawConfigParser()
 config.read('fantasy.conf')
@@ -16,19 +17,18 @@ start_time = datetime.now()
 
 # set appropriate parser function
 if test == 'GS':
-	from collection.gs import GameSummary
-	parse = GameSummary.get_from_html
+	from collection.nhlreport import gs
+	parse = gs.GameSummary.get_from_html
 elif test == 'FC':
-	from collection import fc
+	from collection.nhlreport import fc
 	parse = fc.get_from_html
 elif test == 'ES':
-	from collection import es
+	from collection.nhlreport import es
 	parse = es.get_from_html
 	
 # download, parse, and print data
-for report_html in nhl_reportdownloader.get_all_game_report_html(
-	test, seasons, game_types, games
-):
+urls = urlgenerator.get_game_report_urls(test, seasons, game_types, games)
+for report_html in downloader.get_all_html(urls):
 	# Some tests print results directly, some return string
 	# Only print when something returned
 	result = parse(report_html)

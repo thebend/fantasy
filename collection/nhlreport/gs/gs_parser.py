@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
-import collection.gs
+import collection.nhlreport.gs
 
 @staticmethod
 def get_from_html(html):
 	soup = BeautifulSoup(html, 'html.parser')
 	
-	gs = collection.gs.GameSummary()
+	gs = collection.nhlreport.gs.GameSummary()
 	# identify main table sections
 	(
 		game_summary,

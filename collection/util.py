@@ -49,6 +49,9 @@ def get_table_string(heading, data):
 	data_string = '\n'.join([str(i) for i in data])
 	return heading+'\n'+data_string
 	
+def make_iterable(x):
+	return x if type(x) in (tuple, list) else (x,)
+	
 db_connection = None
 def get_db_connection():
 	"""
