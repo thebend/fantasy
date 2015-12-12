@@ -2,6 +2,7 @@
 Event Summary
 """
 from bs4 import BeautifulSoup
+from collection import util
 
 def get_from_html(html):
 	soup = BeautifulSoup(html, 'html.parser')
@@ -34,10 +35,8 @@ def get_from_html(html):
 			s, ab, ms, th, gv, tk, bs, fw, fl, fp
 		) = [td.text.strip() for td in tr('td')]
 		
-		# accented E in French name could be preserved in database,
-		# but printing to console, which only supports ASCII,
-		# requires replacing it with a regular E first
-		name = name.encode('utf8').replace('\xc3\x89','E')
+		# name must be encoded in utf8 to ensure display of accented E
+		name = name.encode('utf8')
 		
 		# could convert +/- values into numbers
 		# when empty, throws an error, so could overwrite to

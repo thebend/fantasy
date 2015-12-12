@@ -49,7 +49,7 @@ def hit_processor(text):
 def faceoff_processor(text):
 	return text.split(' won against ')
 	
-SHOT_TYPES = set([
+SHOT_TYPES = {
 	'Wrist Shot',
 	'Wrap-around',
 	'Slap Shot',
@@ -57,8 +57,9 @@ SHOT_TYPES = set([
 	'Backhand',
 	'Slap Shot',
 	'Tip-In',
-	'Deflected'
-])
+	'Deflected',
+	'null'
+}
 # "Kevin Bieksa Backhand saved by Pekka Rinne" format
 @icetracker_handler('Shot')
 def shot_processor(text):
@@ -66,6 +67,8 @@ def shot_processor(text):
 		if shot_type in text:
 			(shooter, goalie) = text.split(' {} '.format(shot_type))
 			goalie = goalie[9:]
+			if shot_type == 'null':
+				shot_type = None
 			return (shot_type, shooter, goalie)
 	raise Exception('Could not match a shot type for "{}"'.format(text))
 	
@@ -81,7 +84,7 @@ def shootout_missed_processor(text):
 def shootout_shot_processor(text):
 	return shot_processor(text)
 	
-PENALTY_TYPES = set([
+PENALTY_TYPES = [
 	'Tripping',
 	'Closing hand on puck',
 	'Hooking',
@@ -90,9 +93,11 @@ PENALTY_TYPES = set([
 	'Roughing',
 	'Holding the stick',
 	'Unsportsmanlike conduct',
+	'Interference - Goalkeeper', # important this gets processed before regular interference!
 	'Interference',
 	'Hi-sticking',
 	'Holding',
+	'Delaying Game - Illegal play by goalie',
 	'Delaying Game - Puck over glass',
 	'Boarding',
 	'Cross checking',
@@ -115,29 +120,46 @@ PENALTY_TYPES = set([
 	'Spearing',
 	'Instigator',
 	'Delaying the game',
-	'Concealing puck'
-])
-def format_penalty(aggressor, penalty_type, casualty):
-	return '{:25.25} {:25.25} {:25.25}'.format(
-		aggressor,
-		penalty_type,
-		casualty
-	) 
-
+	'Concealing puck',
+	'Leaving penalty box',
+	'Goalie leave crease',
+	'PS - Covering puck in crease',
+	'Bench', # what kind of penalty is this?
+	'Delaying Game - Smothering puck',
+	'Throwing stick',
+	'Abuse of officials'
+]
+from collection import util
+class Penalty:
+	def __repr__(self):
+		return '{:20.20} {:20.20} {:20.20} {:20.20}'.format(
+			util.nz(self.aggressor).encode('utf8'),
+			self.penalty_type,
+			util.nz(self.casualty).encode('utf8'),
+			util.nz(self.servee).encode('utf8')
+		)
 @icetracker_handler('Penalty')
 def penalty_processor(text):
+	if 'Abusive language' in text:
+		raise Exception('Abusive language: {}'.format(text))
+	if 'Player leaves bench' in text:
+		raise Exception('Player leaves bench: {}'.format(text))
+	p = Penalty()
+	p.servee = None
+	p.casualty = None
+	if ' served by ' in text:
+		(text, p.servee) = text.split(' served by ')
 	if ' against ' in text:
-		(text, casualty) = text.split(' against ')
-	elif ' served by ' in text:
-		(penalty_type, aggressor) = text.split(' served by ')
-		return format_penalty(aggressor, penalty_type, None)
-	else:
-		casualty = None
+		(text, p.casualty) = text.split(' against ')
 		
 	for penalty_type in PENALTY_TYPES:
 		if penalty_type in text:
-			aggressor = text[:-(len(penalty_type) + 2)]
-			return format_penalty(aggressor, penalty_type, casualty)
+			p.penalty_type = penalty_type
+			p.aggressor = text[:-len(penalty_type) - 1]
+			if len(p.aggressor) == 0:
+				p.aggressor = None
+			
+			return p
 	raise Exception('Could not match a penalty type for "{}"'.format(text))
 	
 @icetracker_handler('Goal')
@@ -165,7 +187,3 @@ def goal_processor(text):
 	shooter = players[0]
 	assists = players[1:]
 	return shooter, shot_type, assists
-	
-# 1 07:24 VAN Penalty    Brandon Sutter Interference - Goalkeeper against Sergei Bobrovsky
-# 3 09:55 NJD Penalty    Adam Larsson Interference against Jared McCann served by Bobby Farnham
-# need to set up test where I pass specific predetermined strings to processor

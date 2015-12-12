@@ -1,6 +1,7 @@
 import set_path
-from collection import icetracker
+from collection.icetracker import parser
 from collection import downloader
+from collection import util
 
 def get_icetracker_gameids(start_game_id, number_games):
 	for i in range(number_games):
@@ -9,15 +10,29 @@ def get_icetracker_gameids(start_game_id, number_games):
 
 def get_icetracker_urls(game_ids):
 	for i in game_ids:
-		yield icetracker.get_url(i)
+		yield parser.get_url(i)
 
-# need to bind metadata like this game_id to the parser
-# so I can associate returned records in pool
-# which may return out of order
-ids = get_icetracker_gameids('2015020122', 100)
+ids = get_icetracker_gameids('2014020208', 100)
 urls = get_icetracker_urls(ids)
-for html in downloader.get_all_html(urls):
-	data = icetracker.get_data(html)
+for (url, html) in downloader.get_all_html(urls):
+	print url
+	data = parser.get_data(html)
 	for i in data:
 		if i.event_type == 'Penalty':
 			print str(i)
+
+def test_penalty_parser():
+	test_data = [
+		'Brandon Sutter Interference - Goalkeeper against Sergei Bobrovsky',
+		'Adam Larsson Interference against Jared McCann served by Bobby Farnham',
+		'Leaving penalty box',
+		' against Tanner GlassAbusive language served by Mike Hoffman'
+		' against Hampus LindholmPlayer leaves bench'
+	]
+	
+	from collection.icetracker.event_handlers import penalty_processor
+	for i in test_data:
+		print i
+		print penalty_processor(i)
+		
+# test_penalty_parser()

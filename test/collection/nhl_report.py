@@ -28,10 +28,11 @@ elif test == 'ES':
 	
 # download, parse, and print data
 urls = urlgenerator.get_game_report_urls(test, seasons, game_types, games)
-for report_html in downloader.get_all_html(urls):
+for (url, html) in downloader.get_all_html(urls):
 	# Some tests print results directly, some return string
 	# Only print when something returned
-	result = parse(report_html)
+	print url
+	result = parse(html)
 	if result:
 		print result
 
