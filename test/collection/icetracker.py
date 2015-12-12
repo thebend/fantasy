@@ -12,7 +12,7 @@ def get_icetracker_urls(game_ids):
 	for i in game_ids:
 		yield parser.get_url(i)
 
-ids = get_icetracker_gameids('2014020208', 100)
+ids = get_icetracker_gameids('2014020705', 500)
 urls = get_icetracker_urls(ids)
 for (url, html) in downloader.get_all_html(urls):
 	print url
@@ -28,6 +28,7 @@ def test_penalty_parser():
 		'Leaving penalty box',
 		' against Tanner GlassAbusive language served by Mike Hoffman'
 		' against Hampus LindholmPlayer leaves bench'
+		' against Derek StepanFace-off violation'
 	]
 	
 	from collection.icetracker.event_handlers import penalty_processor

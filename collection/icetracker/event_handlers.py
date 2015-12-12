@@ -127,7 +127,11 @@ PENALTY_TYPES = [
 	'Bench', # what kind of penalty is this?
 	'Delaying Game - Smothering puck',
 	'Throwing stick',
-	'Abuse of officials'
+	'Abuse of officials',
+	'Face-off violation',
+	'Abusive language',
+	'Aggressor',
+	'Abuse of Officials'
 ]
 from collection import util
 class Penalty:
@@ -140,13 +144,21 @@ class Penalty:
 		)
 @icetracker_handler('Penalty')
 def penalty_processor(text):
-	if 'Abusive language' in text:
-		raise Exception('Abusive language: {}'.format(text))
-	if 'Player leaves bench' in text:
-		raise Exception('Player leaves bench: {}'.format(text))
 	p = Penalty()
 	p.servee = None
 	p.casualty = None
+	
+	# some strings are corrupted, eg "against Derek StepanFace-off violation"
+	# process these separately
+	if text.startswith('against '):
+		text = text[8:]
+		if ' served by ' in text:
+			(text, p.servee) = text.split(' served by ')
+		for penalty_type in PENALTY_TYPES:
+			if penalty_type in text:
+				p.penalty_type = penalty_type
+				p.aggressor = text[:-len(penalty_type)]
+				
 	if ' served by ' in text:
 		(text, p.servee) = text.split(' served by ')
 	if ' against ' in text:
