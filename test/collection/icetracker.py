@@ -12,7 +12,7 @@ def get_icetracker_urls(game_ids):
 	for i in game_ids:
 		yield parser.get_url(i)
 
-ids = get_icetracker_gameids('2014020900', 500)
+ids = get_icetracker_gameids('2014021045', 500)
 urls = get_icetracker_urls(ids)
 for (url, html) in downloader.get_all_html(urls):
 	print url

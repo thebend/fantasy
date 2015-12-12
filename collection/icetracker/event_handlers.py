@@ -133,7 +133,8 @@ PENALTY_TYPES = [
 	'Aggressor',
 	'Abuse of Officials',
 	'Broken stick',
-	'PS - Thow object at puck'
+	'PS - Thow object at puck',
+	'Head butting'
 ]
 from collection import util
 class Penalty:
