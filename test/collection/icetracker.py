@@ -30,10 +30,10 @@ def test_penalty_parser():
 		' against Hampus LindholmPlayer leaves bench'
 		' against Derek StepanFace-off violation'
 	]
-	
+
 	from collection.icetracker.event_handlers import penalty_processor
 	for i in test_data:
 		print i
 		print penalty_processor(i)
-		
+
 # test_penalty_parser()
